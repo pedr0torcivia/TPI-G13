@@ -1,27 +1,32 @@
 server:
-  port: 8081
+  port: 8081  # Puerto del microservicio Contenedores
 
 spring:
   application:
     name: servicio-contenedores
+
   datasource:
-    url: jdbc:h2:mem:contenedoresdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:logisticaDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update          # Solo para desarrollo; en prod usar Flyway
     properties:
       hibernate:
         format_sql: true
+        show_sql: false
+    open-in-view: false
+
   h2:
     console:
       enabled: true
-      path: /h2
+      path: /h2-console          # URL: http://localhost:8081/h2-console
 
 springdoc:
   api-docs:
-    path: /api-docs
+    path: /api-docs              # JSON de OpenAPI
   swagger-ui:
-    path: /swagger-ui.html
+    path: /swagger-ui.html       # Swagger UI
