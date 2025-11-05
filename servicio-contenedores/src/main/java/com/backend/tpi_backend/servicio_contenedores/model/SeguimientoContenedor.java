@@ -2,42 +2,33 @@ package com.backend.tpi_backend.servicio_contenedores.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "seguimiento_contenedor",
-       indexes = {
-         @Index(name = "idx_seguimiento_contenedor", columnList = "contenedor_id,fechaHora")
-       })
+@Table(name = "seguimiento_contenedor")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class SeguimientoContenedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
+    // FK -> contenedores.identificacion
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "contenedor_id", nullable = false)
     private Contenedor contenedor;
 
-    @Column(precision = 10, scale = 6)
-    private Double lat;
+    // FK opcional -> contenedor_estado.id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "estado_id")
+    private EstadoContenedor estado;
 
-    @Column(precision = 10, scale = 6)
-    private Double lng;
+    // FK externa (ciudades) como ID crudo
+    @Column(name = "ubicacion_id")
+    private Long ubicacionId;
 
-    @Column(length = 120)
-    private String ciudad;
-
+    @Column(name = "fecha_hora")
     private LocalDateTime fechaHora;
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    private Instant updatedAt;
 }
