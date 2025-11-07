@@ -1,3 +1,5 @@
+package com.backend.tpi_backend.servicio_tarifa.services;
+/*
 @Service @RequiredArgsConstructor
 public class TarifaService {
   private final TarifaRepository repo;
@@ -17,3 +19,4 @@ public class TarifaService {
     return t.getCostoBaseKm() * km + t.getCostoGestionTramo() + combustible;
   }
 }
+*/

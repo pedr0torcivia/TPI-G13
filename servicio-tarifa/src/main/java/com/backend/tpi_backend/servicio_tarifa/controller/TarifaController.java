@@ -1,3 +1,5 @@
+package com.backend.tpi_backend.servicio_tarifa.controller;
+/*
 @RestController
 @RequestMapping("/api/tarifas")
 @RequiredArgsConstructor
@@ -20,3 +22,4 @@ public class TarifaController {
     return Map.of("costoTotal", total);
   }
 }
+*/
