@@ -1,5 +1,6 @@
 package com.backend.tpi_backend.servicio_deposito.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,9 +29,11 @@ public class Ciudad {
 
     // Relación 1:N con Ubicacion
     @OneToMany(mappedBy = "ciudad", cascade = CascadeType.ALL)
+    @JsonIgnore // Evita bucle con Ubicacion → Ciudad
     private List<Ubicacion> ubicaciones;
 
     // Relación 1:N con Deposito
     @OneToMany(mappedBy = "ciudad", cascade = CascadeType.ALL)
+    @JsonIgnore // Evita bucle con Deposito → Ciudad
     private List<Deposito> depositos;
 }

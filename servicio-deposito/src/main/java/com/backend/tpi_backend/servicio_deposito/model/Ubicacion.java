@@ -1,5 +1,6 @@
 package com.backend.tpi_backend.servicio_deposito.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,13 +19,14 @@ public class Ubicacion {
     @Column(nullable = false, length = 150)
     private String direccion;
 
-    @Column(precision = 9, scale = 6)
+    @Column
     private Double lat;
 
-    @Column(precision = 9, scale = 6)
+    @Column
     private Double lng;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ciudad", nullable = false)
+    @JsonIgnore // Evita recursión con Ciudad → Ubicaciones
     private Ciudad ciudad;
 }
