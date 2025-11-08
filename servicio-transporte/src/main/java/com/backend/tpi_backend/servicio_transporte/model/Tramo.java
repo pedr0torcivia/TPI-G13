@@ -13,7 +13,7 @@ public class Tramo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     // FK interna: cada tramo pertenece a una ruta de este mismo microservicio
     @ManyToOne

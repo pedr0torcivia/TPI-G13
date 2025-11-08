@@ -4,6 +4,6 @@ import java.util.List;
 
 import com.backend.tpi_backend.servicio_transporte.model.Ruta;
 
-public interface RutaRepository extends BaseRepository<Ruta, Long> {
+public interface RutaRepository extends BaseRepository<Ruta, Integer> {
     List<Ruta> findBySolicitudId(Long solicitudId);
 }

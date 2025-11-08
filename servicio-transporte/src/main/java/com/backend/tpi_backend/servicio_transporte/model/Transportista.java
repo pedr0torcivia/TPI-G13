@@ -11,7 +11,7 @@ public class Transportista {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "id_keycloak")
     private String idKeycloak;

@@ -11,7 +11,7 @@ public class Ruta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     // Referencia al ID de solicitud del microservicio Contenedores
     @Column(name = "solicitud_id", nullable = false)
