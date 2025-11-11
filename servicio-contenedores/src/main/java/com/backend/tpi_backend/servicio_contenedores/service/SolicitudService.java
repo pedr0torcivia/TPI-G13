@@ -15,7 +15,7 @@ import java.util.List;
 public class SolicitudService {
 
     // IDs de estado fijos
-    private static final int ID_SOLICITUD_BORRADOR = 1;
+    private static final int ID_SOLICITUD_PROGRAMADA = 2; // <-- CAMBIO DE LÓGICA (antes era BORRADOR = 1)
     private static final int ID_CONTENEDOR_DISPONIBLE = 1;
     private static final int ID_CONTENEDOR_ASIGNADO = 2;
 
@@ -28,6 +28,12 @@ public class SolicitudService {
 
     public List<Solicitud> findAll() {
         return solicitudRepository.findAll();
+    }
+
+    // --- NUEVO MÉTODO ---
+    // Será llamado por el controlador cuando se pida filtrar por estado
+    public List<Solicitud> findByEstadoNombre(String nombreEstado) {
+        return solicitudRepository.findByEstado_Nombre(nombreEstado);
     }
 
     public Solicitud findById(Integer id) {
@@ -46,12 +52,13 @@ public class SolicitudService {
         }
         
         Cliente cliente = contenedor.getCliente();
-        SolicitudEstado estadoBorrador = solicitudEstadoService.findById(ID_SOLICITUD_BORRADOR);
+        // --- CAMBIO AQUÍ ---
+        SolicitudEstado estadoProgramada = solicitudEstadoService.findById(ID_SOLICITUD_PROGRAMADA);
 
         // 2. Asignar relaciones al objeto solicitud
         solicitud.setContenedor(contenedor);
         solicitud.setCliente(cliente);
-        solicitud.setEstado(estadoBorrador);
+        solicitud.setEstado(estadoProgramada); // <-- CAMBIO DE LÓGICA
         // Los IDs (origenId, destinoId, tarifaId) deben venir en el objeto 'solicitud'
 
         // 3. Guardar la solicitud
@@ -77,15 +84,16 @@ public class SolicitudService {
     public Solicitud update(Integer id, Solicitud solicitudActualizada) {
         Solicitud solicitudExistente = findById(id);
 
-        if (solicitudExistente.getEstado().getId() != ID_SOLICITUD_BORRADOR) {
-            throw new RuntimeException("Solo se pueden modificar solicitudes en estado 'borrador'.");
+        // --- CAMBIO AQUÍ ---
+        // Lógica de negocio: Solo se puede modificar una solicitud en 'programada'
+        if (solicitudExistente.getEstado().getId() != ID_SOLICITUD_PROGRAMADA) {
+            throw new RuntimeException("Solo se pueden modificar solicitudes en estado 'programada'.");
         }
         
         // No se puede cambiar el contenedor, pero sí el resto
         solicitudExistente.setOrigenId(solicitudActualizada.getOrigenId());
         solicitudExistente.setDestinoId(solicitudActualizada.getDestinoId());
         solicitudExistente.setTarifaId(solicitudActualizada.getTarifaId());
-        // Se podrían actualizar costos/tiempos estimados si se recalculan
         
         return solicitudRepository.save(solicitudExistente);
     }
@@ -94,8 +102,10 @@ public class SolicitudService {
     public void deleteById(Integer id) {
         Solicitud solicitud = findById(id);
 
-        if (solicitud.getEstado().getId() != ID_SOLICITUD_BORRADOR) {
-            throw new RuntimeException("Solo se pueden eliminar solicitudes en estado 'borrador'.");
+        // --- CAMBIO AQUÍ ---
+        // Lógica de negocio: Solo se pueden borrar solicitudes en 'programada'
+        if (solicitud.getEstado().getId() != ID_SOLICITUD_PROGRAMADA) {
+            throw new RuntimeException("Solo se pueden eliminar solicitudes en estado 'programada'.");
         }
 
         Contenedor contenedor = solicitud.getContenedor();

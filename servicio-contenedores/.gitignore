@@ -32,3 +32,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Maven build files
+/servicio-contenedores/target/
+/servicio-deposito/target/
+/servicio-transporte/target/
+/servicio-tarifa/target/
+
+# H2 shared database files (No subir la BBDD al repo)
+/h2/shared_db.mv.db
+/h2/shared_db.trace.db
+

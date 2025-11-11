@@ -1,6 +1,7 @@
 package com.backend.tpi_backend.servicio_contenedores.controller;
 
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
+import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado; // Importar
 import com.backend.tpi_backend.servicio_contenedores.service.ContenedorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,28 @@ public class ContenedorController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<ContenedorEstado> getEstadoById(@PathVariable Integer id) {
+        ContenedorEstado estado = service.findEstadoById(id);
+        return ResponseEntity.ok(estado);
+    }
+
+    // --- NUEVO ENDPOINT ---
+    // PUT /api/contenedores/1/estado?estadoId=3&ubicacionId=101
+    /**
+     * Actualiza solo el estado de un contenedor (usado por otros microservicios).
+     */
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Contenedor> updateEstado(
+            @PathVariable Integer id,
+            @RequestParam Integer estadoId,
+            @RequestParam Integer ubicacionId) {
+        
+        Contenedor actualizado = service.updateEstado(id, estadoId, ubicacionId);
+        return ResponseEntity.ok(actualizado);
+    }
+
+
     // Para crear, pasamos el ID del cliente y la ubicación por Query Params
     @PostMapping
     public ResponseEntity<Contenedor> save(@RequestBody Contenedor contenedor,
@@ -34,6 +57,7 @@ public class ContenedorController {
         return ResponseEntity.status(201).body(guardado);
     }
 
+    // PUT /api/contenedores/1 (Para editar peso/volumen)
     @PutMapping("/{id}")
     public ResponseEntity<Contenedor> update(@PathVariable Integer id, @RequestBody Contenedor contenedor) {
         return ResponseEntity.ok(service.update(id, contenedor));

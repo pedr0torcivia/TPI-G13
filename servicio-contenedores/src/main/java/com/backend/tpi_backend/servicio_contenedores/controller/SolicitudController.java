@@ -15,9 +15,21 @@ public class SolicitudController {
 
     private final SolicitudService service;
 
+    // --- MÉTODO ACTUALIZADO ---
     @GetMapping
-    public ResponseEntity<List<Solicitud>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<Solicitud>> findAll(
+            @RequestParam(required = false) String estado) {
+        
+        List<Solicitud> solicitudes;
+
+        if (estado != null && !estado.isEmpty()) {
+            // Si se provee un filtro 'estado', lo usamos
+            solicitudes = service.findByEstadoNombre(estado);
+        } else {
+            // Si no, devolvemos todo
+            solicitudes = service.findAll();
+        }
+        return ResponseEntity.ok(solicitudes);
     }
 
     @GetMapping("/{id}")
