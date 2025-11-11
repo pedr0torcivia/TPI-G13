@@ -1,33 +1,33 @@
 package com.backend.tpi_backend.servicio_contenedores.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "contenedores")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data @NoArgsConstructor @AllArgsConstructor
 public class Contenedor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "identificacion")
-    private Long identificacion;
+    private Integer identificacion;
 
-    @Column(name = "peso_kg", precision = 12, scale = 3)
+    @Column(name = "peso_kg")
     private BigDecimal pesoKg;
 
-    @Column(name = "volumen_m3", precision = 12, scale = 3)
+    @Column(name = "volumen_m3")
     private BigDecimal volumenM3;
 
-    // FK -> contenedor_estado.id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // Relación: Muchos contenedores tienen Un estado
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_estado", nullable = false)
-    private EstadoContenedor estado;
+    private ContenedorEstado estado;
 
-    // FK -> clientes.id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // Relación: Muchos contenedores pertenecen a Un cliente
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 }

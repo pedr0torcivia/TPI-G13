@@ -1,64 +1,56 @@
 package com.backend.tpi_backend.servicio_contenedores.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
-@Table(
-    name = "solicitudes",
-    indexes = {
-        @Index(name = "idx_solicitudes_contenedor", columnList = "contenedor_id"),
-        @Index(name = "idx_solicitudes_cliente", columnList = "cliente_id"),
-        @Index(name = "idx_solicitudes_estado", columnList = "estado_id")
-    }
-)
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "solicitudes")
+@Data @NoArgsConstructor @AllArgsConstructor
 public class Solicitud {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long numero;
+    private Integer numero;
 
-    // FK -> contenedores.identificacion
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // Relación: Muchas solicitudes para Un contenedor
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contenedor_id", nullable = false)
     private Contenedor contenedor;
 
-    // FK -> clientes.id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    // Relación: Muchas solicitudes de Un cliente
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    // DECIMAL(12,2)
-    @Column(name = "costo_estimado", precision = 12, scale = 2)
+    // Relación: Muchas solicitudes tienen Un estado
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "estado_id", nullable = false)
+    private SolicitudEstado estado;
+
+    @Column(name = "costo_estimado")
     private BigDecimal costoEstimado;
 
-    // minutos (según tu DBML)
     @Column(name = "tiempo_estimado")
-    private Integer tiempoEstimado;
+    private Integer tiempoEstimado; // en minutos
 
-    // DECIMAL(12,2)
-    @Column(name = "costo_final", precision = 12, scale = 2)
+    @Column(name = "costo_final")
     private BigDecimal costoFinal;
 
-    // minutos (según tu DBML)
     @Column(name = "tiempo_real")
-    private Integer tiempoReal;
+    private Integer tiempoReal; // en minutos
 
-    // FK -> solicitud_estado.id
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "estado_id", nullable = false)
-    private EstadoSolicitud estado;
+    // --- CLAVES FORÁNEAS A OTROS MICROSERVICIOS ---
+    // No usamos @ManyToOne, solo guardamos el ID
 
-    // FKs a tablas fuera de alcance actual (ciudades, tarifas): se modelan como IDs crudos
     @Column(name = "origen_id", nullable = false)
-    private Long origenId;
+    private Integer origenId; // FK a Ciudad (en DepositoService)
 
     @Column(name = "destino_id", nullable = false)
-    private Long destinoId;
-
+    private Integer destinoId; // FK a Ciudad (en DepositoService)
+    
     @Column(name = "tarifa_id", nullable = false)
-    private Long tarifaId;
+    private Integer tarifaId; // FK a Tarifa (en TarifaService)
 }
