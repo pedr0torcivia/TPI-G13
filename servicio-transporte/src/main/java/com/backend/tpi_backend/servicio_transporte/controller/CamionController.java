@@ -14,7 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.tpi_backend.servicio_transporte.model.Camion;
 import com.backend.tpi_backend.servicio_transporte.services.CamionService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,5 +54,19 @@ public class CamionController {
     public ResponseEntity<Void> delete(@PathVariable String dominio) {
         camionService.deleteById(dominio);
         return ResponseEntity.noContent().build();
+    }
+
+    // Para listar camiones disponibles
+    @Operation(
+        summary = "Obtiene todos los camiones disponibles",
+        description = "Devuelve una lista de camiones cuya bandera 'disponibilidad' es VERDADERA."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de camiones disponibles (puede ser vacía).")
+    })
+    @GetMapping("/disponibles") 
+    public ResponseEntity<List<Camion>> getDisponibles() {
+        List<Camion> camionesDisponibles = camionService.findDisponibles();
+        return ResponseEntity.ok(camionesDisponibles);
     }
 }

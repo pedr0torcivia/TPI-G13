@@ -10,11 +10,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody; 
 
 import com.backend.tpi_backend.servicio_transporte.model.Tramo;
 import com.backend.tpi_backend.servicio_transporte.services.TramoService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+// Imports Para Swagger
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,12 +43,12 @@ public class TramoController {
     }
 
     @PostMapping
-    public ResponseEntity<Tramo> create(@RequestBody Tramo tramo) {
+    public ResponseEntity<Tramo> create(@RequestBody Tramo tramo) { // <-- USA EL @RequestBody CORREGIDO
         return ResponseEntity.ok(tramoService.save(tramo));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tramo> update(@PathVariable Integer id, @RequestBody Tramo tramo) {
+    public ResponseEntity<Tramo> update(@PathVariable Integer id, @RequestBody Tramo tramo) { // <-- USA EL @RequestBody CORREGIDO
         return ResponseEntity.ok(tramoService.update(id, tramo));
     }
 
@@ -51,4 +57,5 @@ public class TramoController {
         tramoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+    
 }

@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-
 import com.backend.tpi_backend.servicio_transporte.model.Camion;
 import com.backend.tpi_backend.servicio_transporte.repositories.CamionRepository;
-
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -43,5 +42,12 @@ public class CamionService implements BaseService<Camion, String> {
     @Override
     public void deleteById(String dominio) {
         camionRepository.deleteById(dominio);
+    }
+
+    // Lista los camiones disponibles
+    @Transactional(readOnly = true) // 'readOnly = true' optimiza las consultas
+    public List<Camion> findDisponibles() {
+        // Llama al método de CamionRepository
+        return camionRepository.findByDisponibilidadTrue();
     }
 }
