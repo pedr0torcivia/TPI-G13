@@ -1,25 +1,52 @@
 package com.backend.tpi_backend.servicio_tarifa.controller;
-/*
+
+import com.backend.tpi_backend.servicio_tarifa.model.Tarifa;
+import com.backend.tpi_backend.servicio_tarifa.services.TarifaService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tarifas")
 @RequiredArgsConstructor
+
 public class TarifaController {
-  private final TarifaService service;
+    private final TarifaService tarifaService;
 
-  @GetMapping public List<Tarifa> listar(){ return service.listar(); }
-  @PostMapping public Tarifa crear(@RequestBody Tarifa t){ return service.crear(t); }
-  @GetMapping("/{id}") public Tarifa get(@PathVariable int id){ return service.get(id); }
-  @DeleteMapping("/{id}") public void borrar(@PathVariable int id){ service.borrar(id); }
+    @GetMapping
+    public ResponseEntity<List<Tarifa>> getAll() {
+        List<Tarifa> tarifas = tarifaService.findAll();
+        return ResponseEntity.ok(tarifas);
+    }
 
-  @GetMapping("/vigente")
-  public Tarifa vigente(@RequestParam @DateTimeFormat(iso = DATE) LocalDate fecha){
-    return service.vigente(fecha);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<Tarifa> getById(@PathVariable Integer id) {
+        return tarifaService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-  @PostMapping("/calcular")
-  public Map<String, BigDecimal> calcular(@RequestBody CalculoCostoRequest req){
-    BigDecimal total = service.calcularCosto(req.km(), req.consumoLitroKm(), req.fecha());
-    return Map.of("costoTotal", total);
-  }
+    @PostMapping
+    public ResponseEntity<Tarifa> create(@RequestBody Tarifa tarifa) {
+        Tarifa savedTarifa = tarifaService.save(tarifa);
+        return ResponseEntity.ok(savedTarifa);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Tarifa> update(@PathVariable Integer id, @RequestBody Tarifa tarifa) {
+        try {
+            Tarifa updatedTarifa = tarifaService.update(id, tarifa);
+            return ResponseEntity.ok(updatedTarifa);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        tarifaService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
-*/

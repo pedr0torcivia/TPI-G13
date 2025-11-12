@@ -1,19 +1,15 @@
 package com.backend.tpi_backend.servicio_tarifa.model;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "tarifas")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 
 public class Tarifa {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id 
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
   private String nombre;
