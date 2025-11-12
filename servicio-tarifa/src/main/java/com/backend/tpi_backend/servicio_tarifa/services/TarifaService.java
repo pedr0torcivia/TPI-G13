@@ -44,28 +44,27 @@ public class TarifaService implements BaseService<Tarifa, Integer> {
     tarifaRepository.deleteById(id);
   }
 
+  /* ME LLEGA LA DISTANCIA DESDE SERVICIO TRANSPORTE
   public float calcularDistancia(float latOrigen, float lonOrigen, float latDestino, float lonDestino) {
     return 0.2f; // Valor fijo para simplificar, usa api 
   }
+  */
 
   public float calcularEstadia(int diasOcupados, float costoEstadiaDiario) {
     return diasOcupados * costoEstadiaDiario;
   }
 
-  public float calcularTarifaTramo(float volumen, float peso, float valorLitroCombustible, float consumoCombustible,
-  float latOrigen, float lonOrigen, float latDestino, float lonDestino, int diasOcupados, float costoEstadiaDiario) {
+  public float calcularTarifaTramo(float volumen, float peso, float valorLitroCombustible, float consumoCombustible, 
+  int diasOcupados, float costoEstadiaDiario) {
     if (volumen < 20 && peso < 1000) {
-      float distancia = calcularDistancia(latOrigen, lonOrigen, latDestino, lonDestino);
       float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
       float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.2f;
       return costoTramo;
     } else if (volumen < 50 && peso < 3000) {
-      float distancia = calcularDistancia(latOrigen, lonOrigen, latDestino, lonDestino);
       float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
       float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.35f;
       return costoTramo;
     } else {
-      float distancia = calcularDistancia(latOrigen, lonOrigen, latDestino, lonDestino);
       float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
       float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.5f;
       return costoTramo;
