@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class Tarifa {
   @Id 
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+  private Integer id;
 
   @Column(name = "nombre")
   private String nombre;
