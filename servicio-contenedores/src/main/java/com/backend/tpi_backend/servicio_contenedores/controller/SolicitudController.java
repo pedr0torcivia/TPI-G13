@@ -37,6 +37,17 @@ public class SolicitudController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+        // --- NUEVO ENDPOINT (Para resolver el TODO de TramoService) ---
+    /**
+     * Devuelve solo el ID del contenedor asociado a una solicitud.
+     * Usado por servicio-transporte (via Feign) para saber a qué
+     * contenedor debe actualizarle el estado.
+     */
+    @GetMapping("/{id}/contenedorId")
+    public ResponseEntity<Integer> getContenedorIdBySolicitudId(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.findContenedorIdBySolicitudId(id));
+    }
+
     // Para crear, pasamos el ID del contenedor por Query Param
     @PostMapping
     public ResponseEntity<Solicitud> save(@RequestBody Solicitud solicitud,

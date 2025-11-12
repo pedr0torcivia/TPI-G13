@@ -42,6 +42,20 @@ public class SolicitudService {
         );
     }
 
+    // --- NUEVO MÉTODO (Para resolver el TODO de TramoService) ---
+    /**
+     * Busca una solicitud por su ID (numero) y devuelve
+     * el ID (identificacion) del contenedor asociado.
+     * Esto permite a servicio-transporte obtener el contenedorId.
+     */
+    public Integer findContenedorIdBySolicitudId(Integer solicitudId) {
+        Solicitud solicitud = this.findById(solicitudId);
+        if (solicitud.getContenedor() == null) {
+            throw new RuntimeException("La solicitud " + solicitudId + " no tiene un contenedor asociado.");
+        }
+        return solicitud.getContenedor().getIdentificacion();
+    }
+    
     @Transactional
     public Solicitud save(Solicitud solicitud, Integer contenedorId) {
         // 1. Buscar entidades principales

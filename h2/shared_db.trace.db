@@ -1,0 +1,4 @@
+2025-11-12 20:03:18.332431-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "TRAMO_TIPO" no encontrada
+Table "TRAMO_TIPO" not found; SQL statement:
+MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (1, 'origen-deposito') [42102-224]

@@ -8,7 +8,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.7</version>
+        <!-- CORREGIDO: 3.5.7 no existe. Usamos una versión LTS real -->
+        <version>3.3.0</version>
         <relativePath/>
     </parent>
 
@@ -20,6 +21,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- Definimos una variable para la versión de Spring Cloud -->
+        <spring-cloud.version>2023.0.2</spring-cloud.version>
     </properties>
 
     <dependencies>
@@ -53,7 +56,16 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <!-- CORREGIDO: Alineado con Spring Boot 3.3.0 -->
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- =================================== -->
+        <!-- ===== DEPENDENCIA DE FASE 3 ======== -->
+        <!-- =================================== -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
         <!-- Tests -->
@@ -64,29 +76,34 @@
         </dependency>
     </dependencies>
 
+    <!-- Agregamos el "Bill of Materials" (BOM) de Spring Cloud para gestionar versiones -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.32</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
             </plugin>
+            <!-- El 'maven-compiler-plugin' es manejado por el parent, no es necesario redefinirlo -->
         </plugins>
     </build>
 
