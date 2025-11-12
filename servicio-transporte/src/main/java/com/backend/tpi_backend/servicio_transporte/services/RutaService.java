@@ -44,4 +44,8 @@ public class RutaService implements BaseService<Ruta, Integer> {
     public void deleteById(Integer id) {
         rutaRepository.deleteById(id);
     }
+
+    public List<Ruta> obtenerRutasPorSolicitud(Integer idSolicitud) {
+        return rutaRepository.findBySolicitudId(idSolicitud);
+    }
 }

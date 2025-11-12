@@ -15,11 +15,12 @@ public class Ruta {
 
     // Referencia al ID de solicitud del microservicio Contenedores
     @Column(name = "solicitud_id", nullable = false)
-    private Long solicitudId;
+    private Integer solicitudId;
 
     @Column(name = "cantidad_tramos")
     private Integer cantidadTramos;
 
     @Column(name = "cantidad_depositos")
     private Integer cantidadDepositos;
+
 }

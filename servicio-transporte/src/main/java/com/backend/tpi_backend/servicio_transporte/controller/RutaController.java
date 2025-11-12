@@ -29,7 +29,7 @@ public class RutaController {
         return ResponseEntity.ok(rutaService.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Ruta> getById(@PathVariable Integer id) {
         return rutaService.findById(id)
                 .map(ResponseEntity::ok)
@@ -50,5 +50,10 @@ public class RutaController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         rutaService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/solicitud/{idSolicitud}")
+    public ResponseEntity<List<Ruta>> obtenerRutasPorSolicitud(@PathVariable Integer idSolicitud) {
+        return ResponseEntity.ok(rutaService.obtenerRutasPorSolicitud(idSolicitud));
     }
 }

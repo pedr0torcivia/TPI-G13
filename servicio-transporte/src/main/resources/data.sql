@@ -31,38 +31,24 @@ MERGE INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_vol
 VALUES ('CCC333', 2, 6000, 20, TRUE, 150.0, 0.30);
 
 -- ===============================================
--- DATOS DE UBICACIONES (TEMPORALMENTE DESHABILITADO)
+-- RUTAS (cada tramo pertenece a una)
 -- ===============================================
--- MERGE INTO ubicaciones (id, direccion, provincia, pais) KEY(id)
--- VALUES (10, 'Puerto de Rosario', 'Santa Fe', 'Argentina');
--- 
--- MERGE INTO ubicaciones (id, direccion, provincia, pais) KEY(id)
--- VALUES (15, 'Cliente Origen (Mendoza)', 'Mendoza', 'Argentina');
--- 
--- MERGE INTO ubicaciones (id, direccion, provincia, pais) KEY(id)
--- VALUES (20, 'Depósito Córdoba', 'Córdoba', 'Argentina');
--- 
--- MERGE INTO ubicaciones (id, direccion, provincia, pais) KEY(id)
--- VALUES (30, 'Terminal Buenos Aires (Destino)', 'Buenos Aires', 'Argentina');
--- 
--- MERGE INTO ubicaciones (id, direccion, provincia, pais) KEY(id)
--- VALUES (40, 'Parque Industrial Mendoza (Destino)', 'Mendoza', 'Argentina');
+MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
+VALUES (1, 100, 2, 1);
+
+MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
+VALUES (2, 101, 1, 0);
 
 -- ===============================================
--- RUTAS Y TRAMOS DE EJEMPLO (TEMPORALMENTE DESHABILITADO)
+-- TRAMOS (sin camión asignado aún)
 -- ===============================================
+-- Tramo 1: pendiente (estado 1 = estimado)
+MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id)
+KEY(id)
+VALUES (1, 1, 10, 20, 1, 1);
 
--- MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
--- VALUES (1, 101, 2, 1);
--- 
--- MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
--- VALUES (2, 102, 1, 0);
--- 
--- MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id, fecha_hora_inicio_aprox, fecha_hora_fin_aprox, camion_dominio) KEY(id)
--- VALUES (1, 1, 10, 20, 1, 1, '2025-11-11T08:00:00', '2025-11-11T16:00:00', NULL);
--- 
--- MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id, fecha_hora_inicio_aprox, fecha_hora_fin_aprox, camion_dominio) KEY(id)
--- VALUES (2, 1, 20, 30, 3, 1, '2025-11-12T08:00:00', '2025-11-12T14:00:00', NULL);
--- 
--- MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id, fecha_hora_inicio_aprox, fecha_hora_fin_aprox, camion_dominio) KEY(id)
--- VALUES (3, 2, 15, 40, 4, 1, '2025-11-13T08:00:00', '2025-11-13T22:00:00', NULL);
+-- Tramo 2: pendiente también
+MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id)
+KEY(id)
+VALUES (2, 1, 20, 30, 2, 1);
+

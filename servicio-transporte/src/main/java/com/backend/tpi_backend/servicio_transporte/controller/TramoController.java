@@ -14,13 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.backend.tpi_backend.servicio_transporte.model.Tramo;
 import com.backend.tpi_backend.servicio_transporte.services.TramoService;
-
-// Imports Para Swagger
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -57,5 +50,19 @@ public class TramoController {
         tramoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @PutMapping("/{idTramo}/asignar-camion/{dominio}")
+    public ResponseEntity<Tramo> asignarCamion(@PathVariable Integer idTramo, @PathVariable String dominio) {
+        return ResponseEntity.ok(tramoService.asignarCamion(idTramo, dominio));
+    }
+
+    @PutMapping("/{id}/inicio")
+    public ResponseEntity<Tramo> iniciarTramo(@PathVariable Integer id) {
+        return ResponseEntity.ok(tramoService.iniciarTramo(id));
+    }
+
+    @PutMapping("/{id}/fin")
+    public ResponseEntity<Tramo> finalizarTramo(@PathVariable Integer id) {
+    return ResponseEntity.ok(tramoService.finalizarTramo(id));
+    }
 }
