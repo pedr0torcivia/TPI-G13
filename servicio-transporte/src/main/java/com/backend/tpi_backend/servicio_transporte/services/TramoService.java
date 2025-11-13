@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.backend.tpi_backend.servicio_transporte.client.ContenedoresClient; 
+import com.backend.tpi_backend.servicio_transporte.client.ContenedoresClient;
+import com.backend.tpi_backend.servicio_transporte.dto.ContenedorDTO;
+
 import org.springframework.stereotype.Service;
 
 import com.backend.tpi_backend.servicio_transporte.model.Camion;
+import com.backend.tpi_backend.servicio_transporte.model.Ruta;
 import com.backend.tpi_backend.servicio_transporte.model.Tramo;
 import com.backend.tpi_backend.servicio_transporte.model.TramoEstado;
 import com.backend.tpi_backend.servicio_transporte.repositories.TramoRepository;
@@ -38,17 +41,17 @@ public class TramoService implements BaseService<Tramo, Integer> {
     public List<Tramo> findAll() {
         return tramoRepository.findAll();
     }
-    
+
     @Override
     public Optional<Tramo> findById(Integer id) {
         return tramoRepository.findById(id);
     }
-    
+
     @Override
     public Tramo save(Tramo tramo) {
         return tramoRepository.save(tramo);
     }
-    
+
     @Override
     public Tramo update(Integer id, Tramo tramo) {
         if (tramoRepository.existsById(id)) {
@@ -57,30 +60,58 @@ public class TramoService implements BaseService<Tramo, Integer> {
         }
         throw new RuntimeException("Tramo no encontrado con id " + id);
     }
-    
+
     @Override
     public void deleteById(Integer id) {
         tramoRepository.deleteById(id);
     }
 
+    @Transactional
+    public String asignarCamion(Integer idTramo, String dominioCamion) {
 
-    public Tramo asignarCamion(Integer idTramo, String dominioCamion) {
-        // ... (lógica de asignarCamion sin cambios)
-        Tramo tramo = tramoRepository.findById(idTramo)
-                .orElseThrow(() -> new RuntimeException("Tramo no encontrado con id " + idTramo));
-        Camion camion = camionRepository.findById(dominioCamion)
-                .orElseThrow(() -> new RuntimeException("Camión no encontrado con dominio " + dominioCamion));
-        if (Boolean.FALSE.equals(camion.getDisponibilidad())) {
-            throw new RuntimeException("El camión " + dominioCamion + " no está disponible.");
-        }
-        TramoEstado estadoAsignado = tramoEstadoRepository.findByNombre("asignado")
-                .orElseThrow(() -> new RuntimeException("Estado 'asignado' no encontrado"));
-        tramo.setCamion(camion);
-        tramo.setEstado(estadoAsignado);
-        camion.setDisponibilidad(false);
-        tramoRepository.save(tramo);
-        camionRepository.save(camion);
-        return tramo;
+    // 1. Obtener tramo y camión
+    Tramo tramo = tramoRepository.findById(idTramo)
+            .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
+    
+    Camion camion = camionRepository.findById(dominioCamion)
+            .orElseThrow(() -> new RuntimeException("Camión no encontrado"));
+
+    Ruta ruta = tramo.getRuta();
+
+    // 2. Obtener ID del contenedor desde solicitud
+    Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(ruta.getSolicitudId());
+    if (idContenedor == null) {
+        throw new RuntimeException("No se encontró contenedor asociado a la solicitud");
+    }
+
+    // 3. Obtener contenedor completo
+    ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
+
+    // 4. Validar capacidad del camión
+    double capacidadPeso = camion.getCapacidadPesoKg().doubleValue();
+    double capacidadVolumen = camion.getCapacidadVolumenM3().doubleValue();
+
+    if (contenedor.getPesoKg() > capacidadPeso) {
+        throw new RuntimeException("El contenedor supera la capacidad de peso del camión");
+    }
+
+    if (contenedor.getVolumenM3() > capacidadVolumen) {
+        throw new RuntimeException("El contenedor supera la capacidad de volumen del camión");
+    }
+
+    // 5. Asignar camión al tramo
+    TramoEstado estadoAsignado = tramoEstadoRepository.findByNombre("asignado")
+            .orElseThrow(() -> new RuntimeException("Estado 'asignado' no encontrado"));
+
+    tramo.setCamion(camion);
+    tramo.setEstado(estadoAsignado);
+    camion.setDisponibilidad(false);
+
+    // 6. Guardar
+    tramoRepository.save(tramo);
+    camionRepository.save(camion);
+
+    return "Camión asignado correctamente";
     }
 
     @Transactional
@@ -97,7 +128,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
         tramo.setFechaHoraInicio(LocalDateTime.now());
         Tramo tramoGuardado = tramoRepository.save(tramo);
 
-        // --- 4. LLAMADA FEIGN A SERVICIO-CONTENEDORES (LÓGICA CORREGIDA) ---
+        // --- 4. LLAMADA FEIGN A SERVICIO-CONTENEDORES ---
         try {
             // PASO 4.1: Obtener ID de solicitud
             Integer solicitudId = tramo.getRuta().getSolicitudId();
@@ -138,7 +169,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
         camionRepository.save(camion);
         Tramo tramoGuardado = tramoRepository.save(tramo);
 
-        // --- 5. LLAMADA FEIGN A SERVICIO-CONTENEDORES (LÓGICA MEJORADA) ---
+        // --- 5. LLAMADA FEIGN A SERVICIO-CONTENEDORES ---
         
         // PASO 5.1: Verificar si este es el último tramo de la ruta
         boolean esUltimoTramo = true;

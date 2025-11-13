@@ -16,10 +16,10 @@ public class Contenedor {
     private Integer identificacion;
 
     @Column(name = "peso_kg")
-    private BigDecimal pesoKg;
+    private double pesoKg;
 
     @Column(name = "volumen_m3")
-    private BigDecimal volumenM3;
+    private double volumenM3;
 
     // Relación: Muchos contenedores tienen Un estado
     @ManyToOne(fetch = FetchType.EAGER)

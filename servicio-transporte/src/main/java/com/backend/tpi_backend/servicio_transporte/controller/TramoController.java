@@ -51,9 +51,13 @@ public class TramoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{idTramo}/asignar-camion/{dominio}")
-    public ResponseEntity<Tramo> asignarCamion(@PathVariable Integer idTramo, @PathVariable String dominio) {
-        return ResponseEntity.ok(tramoService.asignarCamion(idTramo, dominio));
+    @PutMapping("/tramos/{idTramo}/asignar-camion/{dominioCamion}")
+    public ResponseEntity<String> asignarCamion(
+            @PathVariable Integer idTramo,
+            @PathVariable String dominioCamion
+    ) {
+        String msg = tramoService.asignarCamion(idTramo, dominioCamion);
+        return ResponseEntity.ok(msg);
     }
 
     @PutMapping("/{id}/inicio")
