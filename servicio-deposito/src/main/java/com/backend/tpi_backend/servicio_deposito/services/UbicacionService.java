@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UbicacionService implements BaseService<Ubicacion, Long> {
+public class UbicacionService implements BaseService<Ubicacion, Integer> {
 
     private final UbicacionRepository ubicacionRepository;
 
@@ -20,7 +20,7 @@ public class UbicacionService implements BaseService<Ubicacion, Long> {
     }
 
     @Override
-    public Optional<Ubicacion> findById(Long id) {
+    public Optional<Ubicacion> findById(Integer id) {
         return ubicacionRepository.findById(id);
     }
 
@@ -30,7 +30,7 @@ public class UbicacionService implements BaseService<Ubicacion, Long> {
     }
 
     @Override
-    public Ubicacion update(Long id, Ubicacion ubicacion) {
+    public Ubicacion update(Integer id, Ubicacion ubicacion) {
         if (ubicacionRepository.existsById(id)) {
             ubicacion.setId(id);
             return ubicacionRepository.save(ubicacion);
@@ -39,7 +39,17 @@ public class UbicacionService implements BaseService<Ubicacion, Long> {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         ubicacionRepository.deleteById(id);
+    }
+
+    // ✅ Nuevos métodos de búsqueda
+
+    public List<Ubicacion> buscarPorCiudad(Integer idCiudad) {
+        return ubicacionRepository.findByCiudadId(idCiudad);
+    }
+
+    public List<Ubicacion> buscarPorProvincia(Integer idProvincia) {
+        return ubicacionRepository.findByCiudadProvinciaId(idProvincia);
     }
 }

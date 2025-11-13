@@ -1,5 +1,5 @@
 server:
-  port: 8082  # Puerto del microservicio Depósito
+  port: 8085  # Puerto del microservicio Depósito
 
 spring:
   application:

@@ -14,7 +14,7 @@ public class Ubicacion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id; // 🔹 Cambiado de Long a Integer
 
     @Column(nullable = false, length = 150)
     private String direccion;

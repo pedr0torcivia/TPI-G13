@@ -21,7 +21,7 @@ public class UbicacionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ubicacion> getById(@PathVariable Long id) {
+    public ResponseEntity<Ubicacion> getById(@PathVariable Integer id) {
         return ubicacionService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -33,13 +33,25 @@ public class UbicacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ubicacion> update(@PathVariable Long id, @RequestBody Ubicacion ubicacion) {
+    public ResponseEntity<Ubicacion> update(@PathVariable Integer id, @RequestBody Ubicacion ubicacion) {
         return ResponseEntity.ok(ubicacionService.update(id, ubicacion));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         ubicacionService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ Buscar ubicaciones por ciudad
+    @GetMapping("/ciudad/{idCiudad}")
+    public ResponseEntity<List<Ubicacion>> getByCiudad(@PathVariable Integer idCiudad) {
+        return ResponseEntity.ok(ubicacionService.buscarPorCiudad(idCiudad));
+    }
+
+    // ✅ Buscar ubicaciones por provincia
+    @GetMapping("/provincia/{idProvincia}")
+    public ResponseEntity<List<Ubicacion>> getByProvincia(@PathVariable Integer idProvincia) {
+        return ResponseEntity.ok(ubicacionService.buscarPorProvincia(idProvincia));
     }
 }
