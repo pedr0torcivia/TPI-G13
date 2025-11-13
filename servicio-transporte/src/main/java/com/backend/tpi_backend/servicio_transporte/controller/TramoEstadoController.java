@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/tramo-estados")
+@RequestMapping("/api/tramo-estados")
 @RequiredArgsConstructor
 public class TramoEstadoController {
 

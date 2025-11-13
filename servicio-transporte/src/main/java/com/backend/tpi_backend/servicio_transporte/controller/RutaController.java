@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/rutas")
+@RequestMapping("/api/rutas")
 @RequiredArgsConstructor
 public class RutaController {
 

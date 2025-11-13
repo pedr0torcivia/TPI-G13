@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/camiones")
+@RequestMapping("/api/camiones")
 @RequiredArgsConstructor
 public class CamionController {
 
