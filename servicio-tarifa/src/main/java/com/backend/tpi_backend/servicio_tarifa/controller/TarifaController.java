@@ -1,5 +1,6 @@
 package com.backend.tpi_backend.servicio_tarifa.controller;
 
+import com.backend.tpi_backend.servicio_tarifa.dto.CalculoTarifaRequest;
 import com.backend.tpi_backend.servicio_tarifa.model.Tarifa;
 import com.backend.tpi_backend.servicio_tarifa.services.TarifaService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,21 @@ public class TarifaController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         tarifaService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/calcular")
+    public ResponseEntity<Float> calcularTarifa(
+            @RequestBody CalculoTarifaRequest request) {
+        
+        float tarifa = tarifaService.calcularTarifaTramo(
+                request.getVolumen(),
+                request.getPeso(),
+                request.getDistanciaKm(),
+                request.getValorLitroCombustible(),
+                request.getConsumoCombustible(),
+                request.getDiasOcupados(),
+                request.getCostoEstadiaDiario()
+        );
+        return ResponseEntity.ok(tarifa);
     }
 }

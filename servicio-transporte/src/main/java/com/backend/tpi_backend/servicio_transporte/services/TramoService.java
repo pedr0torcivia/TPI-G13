@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 import com.backend.tpi_backend.servicio_transporte.client.ContenedoresClient;
+import com.backend.tpi_backend.servicio_transporte.client.TarifaClient;
+import com.backend.tpi_backend.servicio_transporte.client.UbicacionClient;
+import com.backend.tpi_backend.servicio_transporte.client.osrm.OsrmClient;
 import com.backend.tpi_backend.servicio_transporte.dto.ContenedorDTO;
+import com.backend.tpi_backend.servicio_transporte.dto.UbicacionDTO;
+import com.backend.tpi_backend.servicio_transporte.dto.CalculoTarifaRequest;
 
 import org.springframework.stereotype.Service;
 
@@ -32,7 +37,9 @@ public class TramoService implements BaseService<Tramo, Integer> {
 
     // --- 2. INYECTAR CLIENTE FEIGN ---
     private final ContenedoresClient contenedoresClient;
-
+    private final OsrmClient osrmClient;
+    private final UbicacionClient ubicacionClient;
+    private final TarifaClient tarifaClient;
     // --- 3. IDs de ESTADO del servicio-contenedores ---
     private static final int ID_CONTENEDOR_EN_TRANSITO = 3;
     private static final int ID_CONTENEDOR_ENTREGADO = 4;
@@ -201,5 +208,67 @@ public class TramoService implements BaseService<Tramo, Integer> {
         }
 
         return tramoGuardado;
+    }
+
+    // --- 1. NUEVO MÉTODO PARA CALCULAR DISTANCIA (de tus instrucciones) ---
+
+    public double calcularDistanciaTramoEnKm(Long origenId, Long destinoId) {
+        // Llama al servicio-deposito para obtener coordenadas
+        UbicacionDTO origen = ubicacionClient.obtenerPorId(origenId);
+        UbicacionDTO destino = ubicacionClient.obtenerPorId(destinoId);
+
+        // Llama al OsrmClient (Docker)
+        return osrmClient.calcularDistanciaKm(
+                origen.getLat(), origen.getLng(),
+                destino.getLat(), destino.getLng()
+        );
+    }
+
+
+public float obtenerTarifaParaTramo(Integer idTramo) {
+        // 1. Obtener el tramo
+        Tramo tramo = tramoRepository.findById(idTramo)
+                .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
+
+        // 2. Calcular distancia (usando el método nuevo)
+        float distanciaKm = (float) calcularDistanciaTramoEnKm(
+                tramo.getOrigenId(),
+                tramo.getDestinoId()
+        );
+
+        // 3. Obtener datos del contenedor (peso, volumen)
+        Integer solicitudId = tramo.getRuta().getSolicitudId();
+        Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(solicitudId);
+        ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
+
+        // 4. Obtener datos del camión (consumo)
+        Camion camion = tramo.getCamion();
+        if (camion == null) {
+            throw new RuntimeException("El tramo no tiene camión asignado");
+        }
+        
+        // <-- CORREGIDO: Usamos el getter de tu campo BigDecimal y lo pasamos a float
+        float consumoCombustible = camion.getConsumoCombustibleKm().floatValue();
+
+        // 5. Simular otros datos (esto debería venir de algún lado)
+        float valorLitroCombustible = 950.0f; // Ejemplo
+        int diasOcupados = 1; // Ejemplo
+        float costoEstadiaDiario = 5000.0f; // Ejemplo
+
+        // 6. Armar la solicitud para el servicio-tarifa
+        CalculoTarifaRequest request = new CalculoTarifaRequest();
+        
+        // <-- CORREGIDO: Casteamos el 'double' primitivo a 'float'
+        request.setVolumen((float) contenedor.getVolumenM3()); 
+        request.setPeso((float) contenedor.getPesoKg());
+        
+        request.setDistanciaKm(distanciaKm);
+        request.setValorLitroCombustible(valorLitroCombustible);
+        request.setConsumoCombustible(consumoCombustible);
+        request.setDiasOcupados(diasOcupados);
+        request.setCostoEstadiaDiario(costoEstadiaDiario);
+
+        // 7. Llamar al servicio-tarifa y devolver el costo
+        return tarifaClient.calcularTarifa(request);
     }
 }

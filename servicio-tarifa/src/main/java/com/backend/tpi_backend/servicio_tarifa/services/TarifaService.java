@@ -54,21 +54,27 @@ public class TarifaService implements BaseService<Tarifa, Integer> {
     return diasOcupados * costoEstadiaDiario;
   }
 
-  public float calcularTarifaTramo(float volumen, float peso, float valorLitroCombustible, float consumoCombustible, 
-  int diasOcupados, float costoEstadiaDiario) {
-    if (volumen < 20 && peso < 1000) {
-      float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
-      float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.2f;
-      return costoTramo;
-    } else if (volumen < 50 && peso < 3000) {
-      float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
-      float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.35f;
-      return costoTramo;
-    } else {
-      float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
-      float costoTramo = ((distancia * consumoCombustible * valorLitroCombustible) + estadia) * 0.5f;
-      return costoTramo;
+public float calcularTarifaTramo(float volumen,
+                                     float peso,
+                                     float distanciaKm, // <-- PARÁMETRO AGREGADO
+                                     float valorLitroCombustible,
+                                     float consumoCombustible, 
+                                     int diasOcupados,
+                                     float costoEstadiaDiario) {
+        
+        float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
+
+        // Usamos el parámetro "distanciaKm"
+        if (volumen < 20 && peso < 1000) {
+            float costoTramo = ((distanciaKm * consumoCombustible * valorLitroCombustible) + estadia) * 0.2f;
+            return costoTramo;
+        } else if (volumen < 50 && peso < 3000) {
+            float costoTramo = ((distanciaKm * consumoCombustible * valorLitroCombustible) + estadia) * 0.35f;
+            return costoTramo;
+        } else {
+            float costoTramo = ((distanciaKm * consumoCombustible * valorLitroCombustible) + estadia) * 0.5f;
+            return costoTramo;
+        }
     }
-  }
 
 }

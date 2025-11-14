@@ -36,12 +36,12 @@ public class TramoController {
     }
 
     @PostMapping
-    public ResponseEntity<Tramo> create(@RequestBody Tramo tramo) { // <-- USA EL @RequestBody CORREGIDO
+    public ResponseEntity<Tramo> create(@RequestBody Tramo tramo) { 
         return ResponseEntity.ok(tramoService.save(tramo));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tramo> update(@PathVariable Integer id, @RequestBody Tramo tramo) { // <-- USA EL @RequestBody CORREGIDO
+    public ResponseEntity<Tramo> update(@PathVariable Integer id, @RequestBody Tramo tramo) { 
         return ResponseEntity.ok(tramoService.update(id, tramo));
     }
 
@@ -51,7 +51,10 @@ public class TramoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/tramos/{idTramo}/asignar-camion/{dominioCamion}")
+    // --- Endpoint para asignar camión ---
+    // NOTA: Cambié la URL a "/{idTramo}/asignar-camion/{dominioCamion}" 
+    //       para ser consistente con el mapping "/tramos" de la clase.
+    @PutMapping("/{idTramo}/asignar-camion/{dominioCamion}")
     public ResponseEntity<String> asignarCamion(
             @PathVariable Integer idTramo,
             @PathVariable String dominioCamion
@@ -67,6 +70,23 @@ public class TramoController {
 
     @PutMapping("/{id}/fin")
     public ResponseEntity<Tramo> finalizarTramo(@PathVariable Integer id) {
-    return ResponseEntity.ok(tramoService.finalizarTramo(id));
+        return ResponseEntity.ok(tramoService.finalizarTramo(id));
+    }
+
+    // --- 🚀 NUEVO ENDPOINT PARA CALCULAR TARIFA ---
+    
+    /**
+     * Calcula la tarifa final de un tramo específico.
+     * Este método llama a OSRM para la distancia, al servicio de contenedores
+     * para peso/volumen y al servicio de tarifas para el cálculo final.
+     *
+     * @param id El ID del Tramo
+     * @return La tarifa calculada como un valor float.
+     */
+    @GetMapping("/{id}/tarifa")
+    public ResponseEntity<Float> calcularTarifa(@PathVariable Integer id) {
+        // Llama al método que creamos en TramoService
+        float tarifa = tramoService.obtenerTarifaParaTramo(id);
+        return ResponseEntity.ok(tarifa);
     }
 }

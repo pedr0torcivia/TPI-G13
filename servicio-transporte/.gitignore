@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# OSRM data (no versionar)
+osrm-data/
+*.osrm
+*.osm.pbf
