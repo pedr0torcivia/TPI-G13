@@ -14,7 +14,7 @@ public class OsrmClient {
     private final RestTemplate restTemplate;
 
     // configurable en application.yml
-    @Value("${osrm.base-url:http://localhost:5000}")
+    @Value("${osrm.base-url:http://localhost:5001}")
     private String osrmBaseUrl;
 
     public double calcularDistanciaKm(double latOrigen, double lngOrigen,
