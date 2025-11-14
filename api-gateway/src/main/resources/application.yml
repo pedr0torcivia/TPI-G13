@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true                 # Eureka autodescubre rutas
+          lower-case-service-id: true
+
+      default-filters:
+        - AddRequestHeader=Authorization, "#{request.headers.Authorization}"
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/tpi-realm
+          # ⚠ Ajustá el puerto y nombre del realm según tu Keycloak
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
