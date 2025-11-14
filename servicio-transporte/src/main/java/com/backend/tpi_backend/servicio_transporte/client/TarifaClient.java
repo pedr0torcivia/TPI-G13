@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface TarifaClient {
 
     // El endpoint que creamos en el TarifaController
-    @PostMapping("/tarifa/calcular") 
+    @PostMapping("/api/tarifas/calcular") 
     Float calcularTarifa(@RequestBody CalculoTarifaRequest request);
 }

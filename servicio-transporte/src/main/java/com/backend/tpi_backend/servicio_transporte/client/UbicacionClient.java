@@ -11,5 +11,5 @@ public interface UbicacionClient {
 
     // Ajusta "/ubicaciones/{id}" si el endpoint es diferente
     @GetMapping("api/ubicaciones/{id}") 
-    UbicacionDTO obtenerPorId(@PathVariable Long id);
+    UbicacionDTO obtenerPorId(@PathVariable Integer id);
 }

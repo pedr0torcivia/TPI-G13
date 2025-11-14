@@ -212,7 +212,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
 
     // --- 1. NUEVO MÉTODO PARA CALCULAR DISTANCIA (de tus instrucciones) ---
 
-    public double calcularDistanciaTramoEnKm(Long origenId, Long destinoId) {
+    public double calcularDistanciaTramoEnKm(Integer origenId, Integer destinoId) {
         // Llama al servicio-deposito para obtener coordenadas
         UbicacionDTO origen = ubicacionClient.obtenerPorId(origenId);
         UbicacionDTO destino = ubicacionClient.obtenerPorId(destinoId);

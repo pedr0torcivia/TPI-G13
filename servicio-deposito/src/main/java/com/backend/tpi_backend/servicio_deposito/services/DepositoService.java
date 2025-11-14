@@ -57,7 +57,7 @@ public class DepositoService implements BaseService<Deposito, Integer> {
 
             if (ubicacion.getId() != null) {
                 // Ubicación existente
-                Long ubicacionId = ubicacion.getId();
+                Integer ubicacionId = ubicacion.getId();
                 ubicacion = ubicacionRepository.findById(ubicacionId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ubicación no encontrada con id " + ubicacionId));
             } else {

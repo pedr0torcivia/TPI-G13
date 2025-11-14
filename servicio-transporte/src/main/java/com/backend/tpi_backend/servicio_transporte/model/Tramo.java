@@ -23,10 +23,10 @@ public class Tramo {
 
     // FKs externas (a microservicio de depósitos/ubicaciones): guardamos solo el ID
     @Column(name = "origen_id", nullable = false)
-    private Long origenId;   // referencia a UBICACIONES.id
+    private Integer origenId;   // referencia a UBICACIONES.id
 
     @Column(name = "destino_id", nullable = false)
-    private Long destinoId;  // referencia a UBICACIONES.id
+    private Integer destinoId;  // referencia a UBICACIONES.id
 
     // Catálogos internos del MS transporte
     @ManyToOne
