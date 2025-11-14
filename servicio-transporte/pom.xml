@@ -4,12 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <!-- CORREGIDO: 3.5.7 no existe. Usamos una versión LTS real -->
-        <version>3.3.0</version>
+        <version>3.5.7</version>
         <relativePath/>
     </parent>
 
@@ -17,15 +15,15 @@
     <artifactId>servicio-transporte</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Servicio Transporte</name>
-    <description>Microservicio para gestión de camiones, rutas y tramos</description>
+    <description>Microservicio de gestión de rutas, camiones y tramos</description>
 
     <properties>
         <java.version>21</java.version>
-        <!-- Definimos una variable para la versión de Spring Cloud -->
         <spring-cloud.version>2023.0.2</spring-cloud.version>
     </properties>
 
     <dependencies>
+
         <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -52,20 +50,23 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Swagger / OpenAPI -->
+        <!-- Swagger (compatible con Boot 3.5.x) -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <!-- CORREGIDO: Alineado con Spring Boot 3.3.0 -->
-            <version>2.5.0</version>
+            <version>2.6.0</version>
         </dependency>
 
-        <!-- =================================== -->
-        <!-- ===== DEPENDENCIA DE FASE 3 ======== -->
-        <!-- =================================== -->
+        <!-- FEIGN CLIENT (para llamar a servicio-contenedores) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- EUREKA CLIENT -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
         <!-- Tests -->
@@ -74,14 +75,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Para comunicación REST (Cliente Feign) -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
+
     </dependencies>
 
-    <!-- Agregamos el "Bill of Materials" (BOM) de Spring Cloud para gestionar versiones -->
+    <!-- BOM NECESARIA PARA QUE FEIGN + EUREKA FUNCIONEN -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -96,19 +93,29 @@
 
     <build>
         <plugins>
+
+            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Compiler Java 21 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>
+                    <source>21</source>
+                    <target>21</target>
+                    <annotationProcessorPaths>
+                        <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- El 'maven-compiler-plugin' es manejado por el parent, no es necesario redefinirlo -->
+
         </plugins>
     </build>
 
