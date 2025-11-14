@@ -1,5 +1,6 @@
 package com.backend.tpi_backend.servicio_contenedores.service;
 
+import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorDTO; // <-- IMPORTAR DTO
 import com.backend.tpi_backend.servicio_contenedores.model.Cliente;
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
 import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors; // <-- IMPORTAR STREAMS
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class ContenedorService {
     private static final int ID_ESTADO_DISPONIBLE = 1;
     private static final int ID_ESTADO_ASIGNADO = 2;
     private static final int ID_ESTADO_EN_TRANSITO = 3;
-    private static final int ID_ESTADO_ENTREGADO = 4; // <-- NUEVA CONSTANTE
+    private static final int ID_ESTADO_ENTREGADO = 4;
 
 
     private final ContenedorRepository contenedorRepository;
@@ -28,14 +30,34 @@ public class ContenedorService {
     private final ContenedorEstadoService contenedorEstadoService;
     private final SeguimientoContenedorRepository seguimientoRepository;
 
-    public List<Contenedor> findAll() {
-        return contenedorRepository.findAll();
+    // --- NUEVO HELPER DE CONVERSIÓN ---
+    private ContenedorDTO toDTO(Contenedor c) {
+        ContenedorDTO dto = new ContenedorDTO();
+        dto.setIdentificacion(c.getIdentificacion());
+        dto.setPesoKg(c.getPesoKg());
+        dto.setVolumenM3(c.getVolumenM3());
+        return dto;
     }
 
+    // --- MÉTODO 1 (para el Controller) ---
+    public List<ContenedorDTO> findAllDTO() {
+        return contenedorRepository.findAll()
+                .stream()
+                .map(this::toDTO) // Convierte cada Contenedor a ContenedorDTO
+                .collect(Collectors.toList());
+    }
+
+    // Método interno que devuelve la Entidad (para uso del servicio)
     public Contenedor findById(Integer id) {
         return contenedorRepository.findById(id).orElseThrow(
             () -> new RuntimeException("Contenedor no encontrado con ID: " + id)
         );
+    }
+
+    // --- MÉTODO 2 (para el Controller) ---
+    public ContenedorDTO findDTOById(Integer id) {
+        Contenedor c = this.findById(id); // Llama al método que ya tenías
+        return toDTO(c); // Devuelve el DTO
     }
 
     public ContenedorEstado findEstadoById(Integer id) {
@@ -43,75 +65,64 @@ public class ContenedorService {
         return contenedor.getEstado();
     }
 
-    // --- NUEVO MÉTODO TRANSACCIONAL ---
-    /**
-     * Actualiza el estado de un contenedor y crea un registro de seguimiento.
-     * Este método será llamado por el Servicio de Transporte.
-     * @param id El ID del contenedor a actualizar.
-     * @param nuevoEstadoId El ID del nuevo estado (ej: 3 para "en_transito", 4 para "entregado").
-     * @param ubicacionId El ID de la ciudad/depósito donde ocurre el evento.
-     * @return El contenedor actualizado.
-     */
+    // --- MÉTODO 3 (para el Controller) ---
     @Transactional
-    public Contenedor updateEstado(Integer id, Integer nuevoEstadoId, Integer ubicacionId) {
-        // 1. Buscar el contenedor
+    public ContenedorDTO updateEstado(Integer id, Integer nuevoEstadoId, Integer ubicacionId) {
         Contenedor contenedor = findById(id);
-
-        // 2. Buscar el nuevo objeto de estado
         ContenedorEstado nuevoEstado = contenedorEstadoService.findById(nuevoEstadoId);
         
-        // 3. Validar si el estado ya está seteado (para evitar seguimientos duplicados)
         if (contenedor.getEstado().getId().equals(nuevoEstadoId)) {
-            return contenedor; // Ya está en este estado, no hacer nada.
+            return toDTO(contenedor); // Devuelve el DTO del contenedor existente
         }
 
-        // 4. Actualizar el estado del contenedor
         contenedor.setEstado(nuevoEstado);
         Contenedor contenedorActualizado = contenedorRepository.save(contenedor);
 
-        // 5. Crear el registro de seguimiento (Trazabilidad)
         SeguimientoContenedor seguimiento = new SeguimientoContenedor(
             contenedorActualizado,
             nuevoEstado,
-            ubicacionId // La ubicación del evento (ej: inicio de tramo)
+            ubicacionId 
         );
         seguimientoRepository.save(seguimiento);
 
-        return contenedorActualizado;
+        return toDTO(contenedorActualizado); // Devuelve el DTO actualizado
     }
 
+    // --- MÉTODO 4 (para el Controller) ---
     @Transactional
-    public Contenedor save(Contenedor contenedor, Integer clienteId, Integer ubicacionId) {
-        // ... (código existente de save sin cambios)
+    public ContenedorDTO save(Contenedor contenedor, Integer clienteId, Integer ubicacionId) {
         Cliente cliente = clienteService.findById(clienteId);
         ContenedorEstado estadoDisponible = contenedorEstadoService.findById(ID_ESTADO_DISPONIBLE);
         contenedor.setCliente(cliente);
         contenedor.setEstado(estadoDisponible);
         Contenedor contenedorGuardado = contenedorRepository.save(contenedor);
+        
         SeguimientoContenedor seguimiento = new SeguimientoContenedor(
             contenedorGuardado,
             estadoDisponible,
             ubicacionId
         );
         seguimientoRepository.save(seguimiento);
-        return contenedorGuardado;
+        
+        return toDTO(contenedorGuardado); // Devuelve el DTO guardado
     }
 
+    // --- MÉTODO 5 (para el Controller) ---
     @Transactional
-    public Contenedor update(Integer id, Contenedor contenedorActualizado) {
-        // ... (código existente de update sin cambios)
+    public ContenedorDTO update(Integer id, Contenedor contenedorActualizado) {
         Contenedor contenedorExistente = findById(id);
         if (contenedorExistente.getEstado().getId() != ID_ESTADO_DISPONIBLE) {
             throw new RuntimeException("No se puede modificar un contenedor que no está 'disponible'.");
         }
         contenedorExistente.setPesoKg(contenedorActualizado.getPesoKg());
         contenedorExistente.setVolumenM3(contenedorActualizado.getVolumenM3());
-        return contenedorRepository.save(contenedorExistente);
+        
+        Contenedor guardado = contenedorRepository.save(contenedorExistente);
+        return toDTO(guardado); // Devuelve el DTO actualizado
     }
 
     @Transactional
     public void deleteById(Integer id) {
-        // ... (código existente de deleteById sin cambios)
         Contenedor contenedor = findById(id);
         int estadoId = contenedor.getEstado().getId();
         if (estadoId == ID_ESTADO_ASIGNADO || estadoId == ID_ESTADO_EN_TRANSITO) {

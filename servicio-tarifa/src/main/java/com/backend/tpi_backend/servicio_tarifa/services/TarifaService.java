@@ -61,8 +61,17 @@ public float calcularTarifaTramo(float volumen,
                                      float consumoCombustible, 
                                      int diasOcupados,
                                      float costoEstadiaDiario) {
-        
-        float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
+
+          System.out.println("--- [SERVICIO-TARIFA] CALCULANDO TARIFA ---");
+          System.out.println("Volumen Recibido: " + volumen);
+          System.out.println("Peso Recibido: " + peso);
+          System.out.println("Distancia (km) Recibida: " + distanciaKm);
+          System.out.println("Consumo Combustible (L/km): " + consumoCombustible);
+          System.out.println("Valor Litro: " + valorLitroCombustible);
+          System.out.println("Días Ocupados: " + diasOcupados);
+          System.out.println("Costo Estadia Diario: " + costoEstadiaDiario);
+          
+          float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
 
         // Usamos el parámetro "distanciaKm"
         if (volumen < 20 && peso < 1000) {
