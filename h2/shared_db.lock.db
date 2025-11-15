@@ -1,6 +1,6 @@
 #FileLock
-#Sat Nov 15 16:17:48 ART 2025
+#Sat Nov 15 16:33:03 ART 2025
 hostName=NB-PEDRO
-id=19a88f3bb64468a8eecf80bf70c2535d980e502b8ec
+id=19a8901b4cc792f196693ebdac758c60dea5a6e492d
 method=file
-server=192.168.68.107\:63335
+server=192.168.68.107\:52592

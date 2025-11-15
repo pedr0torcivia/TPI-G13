@@ -48,14 +48,26 @@ public class TransportistaService implements BaseService<Transportista, Integer>
         transportistaRepository.deleteById(id);
     }
 
-    // Transportista puede ver sus tramos asignados
-    public List<Tramo> obtenerTramosAsignados(Integer idTransportista) {
+    // --- MÉTODO MODIFICADO (AHORA ES SEGURO) ---
+    /**
+     * Devuelve los tramos asignados a un transportista,
+     * buscándolo por su ID de Keycloak (el 'sub' del JWT).
+     */
+    public List<Tramo> obtenerTramosAsignadosPorKeycloakId(String idKeycloak) {
 
-        // Verificamos que exista el transportista
+        // Ya no necesitamos verificar si el transportista existe.
+        // Si el idKeycloak es inválido, el repositorio simplemente
+        // devolverá una lista vacía, lo cual es seguro.
+
+        return tramoRepository.findByCamion_Transportista_IdKeycloak(idKeycloak);
+    }
+    
+    // (Dejamos el método viejo por si lo usa otra parte del sistema,
+    // pero el controller ya no lo va a llamar)
+    public List<Tramo> obtenerTramosAsignados(Integer idTransportista) {
         if (!transportistaRepository.existsById(idTransportista)) {
             throw new RuntimeException("Transportista no encontrado con id " + idTransportista);
-        }
-
+    }
         return tramoRepository.findByCamion_Transportista_Id(idTransportista);
     }
 }
