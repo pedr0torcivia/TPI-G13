@@ -2,12 +2,15 @@ package com.backend.tpi_backend.servicio_transporte.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping; // <-- IMPORTAR
+import org.springframework.web.bind.annotation.GetMapping; 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.backend.tpi_backend.servicio_transporte.dto.ContenedorDTO;
+import com.backend.tpi_backend.servicio_transporte.dto.SolicitudDTO;
+
+import feign.Response;
 
 // name = "servicio-contenedores" (arbitrario, para logs)
 // url = "http://localhost:8081" (El puerto del servicio que consumimos)
@@ -34,4 +37,20 @@ public interface ContenedoresClient {
     // Llama al endpoint: GET http://localhost:8081/api/contenedores/{id}
     @GetMapping("/api/contenedores/{id}")
     ContenedorDTO getContenedor(@PathVariable("id") Integer id);
+
+    // ====================================================
+    // 🚀 NUEVO: Obtener datos completos de una solicitud
+    // ====================================================
+    @GetMapping("/api/solicitudes/{id}")
+    SolicitudDTO getSolicitud(@PathVariable("id") Integer id);
+
+    // ====================================================
+    // 🚀 NUEVO: Asignar ruta a una solicitud
+    // (crearemos este endpoint en Contenedores)
+    // ====================================================
+    @PutMapping("/api/solicitudes/{idSolicitud}/ruta/{idRuta}")
+    ResponseEntity<Void> asignarRuta(
+        @PathVariable("idSolicitud") Integer idSolicitud,
+        @PathVariable("idRuta") Integer idRuta
+    );
 }

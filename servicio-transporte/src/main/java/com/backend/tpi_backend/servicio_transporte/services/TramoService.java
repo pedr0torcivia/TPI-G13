@@ -271,4 +271,31 @@ public float obtenerTarifaParaTramo(Integer idTramo) {
         // 7. Llamar al servicio-tarifa y devolver el costo
         return tarifaClient.calcularTarifa(request);
     }
+
+    // --- 2. NUEVO MÉTODO PARA TARIFA ESTIMADA (PASO 5) ---
+    public float obtenerTarifaParaTramoEstimado(Integer contenedorId, double distanciaKm) {
+
+    // 1. Obtener contenedor desde microservicio contenedores
+    ContenedorDTO contenedor = contenedoresClient.getContenedor(contenedorId);
+
+    if (contenedor == null) {
+        throw new RuntimeException("No se encontró el contenedor con ID: " + contenedorId);
+    }
+
+    // 2. Armar request para el servicio de tarifas
+    CalculoTarifaRequest request = new CalculoTarifaRequest();
+    request.setPeso((float) contenedor.getPesoKg());
+    request.setVolumen((float) contenedor.getVolumenM3());
+    request.setDistanciaKm((float) distanciaKm);
+
+    // Valores base (configurables)
+    request.setValorLitroCombustible(900f);
+    request.setConsumoCombustible(0.35f);   // consumo promedio sin camión
+    request.setDiasOcupados(0);
+    request.setCostoEstadiaDiario(0f);
+
+    // 3. Llamar al microservicio tarifas
+    return tarifaClient.calcularTarifa(request);
+}
+
 }

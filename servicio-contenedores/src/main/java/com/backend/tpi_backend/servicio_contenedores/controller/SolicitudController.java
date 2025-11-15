@@ -83,4 +83,14 @@ public class SolicitudController {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+    //Nuevo endpoint para asignar ruta a una solicitud PASO 4
+    @PutMapping("/{idSolicitud}/ruta/{idRuta}")
+    @PreAuthorize("hasRole('OPERADOR')")
+    public ResponseEntity<Solicitud> asignarRuta(
+        @PathVariable Integer idSolicitud,
+        @PathVariable Integer idRuta) {
+
+    return ResponseEntity.ok(service.asignarRuta(idSolicitud, idRuta));
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.backend.tpi_backend.servicio_contenedores.controller;
 
 import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorDTO; // <-- IMPORTAR DTO
+import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorPendienteDTO;
+import com.backend.tpi_backend.servicio_contenedores.dto.EstadoContenedorResponse;
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
 import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado;
 import com.backend.tpi_backend.servicio_contenedores.service.ContenedorService;
@@ -67,4 +69,21 @@ public class ContenedorController {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/{id}/estado-transporte")
+    public ResponseEntity<EstadoContenedorResponse> consultarEstadoTransporte(
+        @PathVariable Integer id) {
+    return ResponseEntity.ok(service.consultarEstadoTransporte(id));
+    }
+    //Funcionalidad 5 - Listar contenedores no disponibles
+    @GetMapping("/pendientes")
+public ResponseEntity<List<ContenedorPendienteDTO>> getPendientes(
+        @RequestParam(required = false) Integer estadoId,
+        @RequestParam(required = false) Integer clienteId,
+        @RequestParam(required = false) Integer ubicacionId
+) {
+    return ResponseEntity.ok(
+        service.obtenerPendientes(estadoId, clienteId, ubicacionId)
+    );
+}
+
 }

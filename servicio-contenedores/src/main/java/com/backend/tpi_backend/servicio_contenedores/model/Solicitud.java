@@ -53,4 +53,7 @@ public class Solicitud {
     
     @Column(name = "tarifa_id", nullable = false)
     private Integer tarifaId; // FK a Tarifa (en TarifaService)
+
+    @Column(name = "ruta_id")
+    private Integer rutaId;  // FK hacia MS Transporte
 }

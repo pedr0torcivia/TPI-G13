@@ -145,4 +145,19 @@ public class SolicitudService {
 
         solicitudRepository.deleteById(id);
     }
+    //metodo para el paso 4-Asingar ruta con sus tramos a solicitud
+    @Transactional
+    public Solicitud asignarRuta(Integer solicitudId, Integer rutaId) {
+
+        Solicitud solicitud = findById(solicitudId);
+
+        // estado "RUTA_ASIGNADA" (debes ver su ID real)
+        SolicitudEstado estadoRutaAsignada = solicitudEstadoService.findById(3);
+
+        solicitud.setRutaId(rutaId);
+        solicitud.setEstado(estadoRutaAsignada);
+
+        return solicitudRepository.save(solicitud);
+    }
+
 }

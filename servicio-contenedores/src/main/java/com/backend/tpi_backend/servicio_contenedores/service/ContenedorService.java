@@ -1,15 +1,20 @@
 package com.backend.tpi_backend.servicio_contenedores.service;
 
 import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorDTO; // <-- IMPORTAR DTO
+import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorPendienteDTO;
+import com.backend.tpi_backend.servicio_contenedores.dto.EstadoContenedorResponse;
+import com.backend.tpi_backend.servicio_contenedores.dto.SeguimientoContenedorResponse;
 import com.backend.tpi_backend.servicio_contenedores.model.Cliente;
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
 import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado;
 import com.backend.tpi_backend.servicio_contenedores.model.SeguimientoContenedor;
+import com.backend.tpi_backend.servicio_contenedores.model.Solicitud;
 import com.backend.tpi_backend.servicio_contenedores.repositories.ContenedorRepository;
 import com.backend.tpi_backend.servicio_contenedores.repositories.SeguimientoContenedorRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.backend.tpi_backend.servicio_contenedores.repositories.SolicitudRepository;
 
 import java.util.List;
 import java.util.stream.Collectors; // <-- IMPORTAR STREAMS
@@ -29,6 +34,7 @@ public class ContenedorService {
     private final ClienteService clienteService;
     private final ContenedorEstadoService contenedorEstadoService;
     private final SeguimientoContenedorRepository seguimientoRepository;
+    private final SolicitudRepository solicitudRepository;
 
     // --- NUEVO HELPER DE CONVERSIÓN ---
     private ContenedorDTO toDTO(Contenedor c) {
@@ -133,4 +139,85 @@ public class ContenedorService {
         );
         contenedorRepository.deleteById(id);
     }
+    //Para el paso 2-consultar estado del transporte de un contenedor
+    public EstadoContenedorResponse consultarEstadoTransporte(Integer contenedorId) {
+
+    Contenedor contenedor = this.findById(contenedorId);
+
+    List<SeguimientoContenedor> historial =
+            seguimientoRepository.findByContenedor_IdentificacionOrderByFechaHoraDesc(contenedorId);
+
+    EstadoContenedorResponse dto = new EstadoContenedorResponse();
+    dto.setContenedorId(contenedorId);
+    dto.setEstadoActual(contenedor.getEstado().getNombre());
+
+    if (!historial.isEmpty()) {
+        dto.setUbicacionActualId(historial.get(0).getUbicacionId());
+    }
+
+    dto.setHistorial(
+        historial.stream().map(s -> {
+            SeguimientoContenedorResponse r = new SeguimientoContenedorResponse();
+            r.setEstado(s.getEstado().getNombre());
+            r.setUbicacionId(s.getUbicacionId());
+            r.setFechaHora(s.getFechaHora());
+            return r;
+        }).toList()
+    );
+
+    return dto;
+}
+
+//Funcionalidad 5- . Consultar todos los contenedores pendientes de entrega y su ubicación / estado con filtros.
+public List<ContenedorPendienteDTO> obtenerPendientes(Integer estadoFiltro, Integer clienteId, Integer ubicacionId) {
+
+    // 1. Obtener todos menos ENTREGADO (id = 4)
+    List<Contenedor> lista = contenedorRepository.findByEstado_IdNot(4);
+
+    // 2. Filtrar opcionalmente
+    if (estadoFiltro != null) {
+        lista = lista.stream()
+                .filter(c -> c.getEstado().getId().equals(estadoFiltro))
+                .toList();
+    }
+
+    if (clienteId != null) {
+        lista = lista.stream()
+                .filter(c -> c.getCliente().getId().equals(clienteId))
+                .toList();
+    }
+
+    if (ubicacionId != null) {
+        lista = lista.stream()
+                .filter(c -> {
+                    SeguimientoContenedor seg = seguimientoRepository.findTopByContenedorOrderByFechaDesc(c);
+                    return seg != null && seg.getUbicacionId().equals(ubicacionId);
+                })
+                .toList();
+    }
+
+    // 3. Mapear a DTO
+    return lista.stream().map(c -> {
+        ContenedorPendienteDTO dto = new ContenedorPendienteDTO();
+        dto.setId(c.getIdentificacion());
+        dto.setPesoKg(c.getPesoKg());
+        dto.setVolumenM3(c.getVolumenM3());
+        dto.setEstado(c.getEstado().getNombre());
+        dto.setClienteNombre(c.getCliente().getNombre());
+
+        // obtener última ubicación
+        SeguimientoContenedor seg = seguimientoRepository.findTopByContenedorOrderByFechaDesc(c);
+        dto.setUbicacionActualId(seg != null ? seg.getUbicacionId() : null);
+
+        
+        // obtener solicitud actual si existe
+        Solicitud sol = solicitudRepository.findByContenedor(c);
+        dto.setSolicitudId(sol != null ? sol.getNumero() : null);
+
+        return dto;
+    }).toList();
+}
+
+
+
 }
