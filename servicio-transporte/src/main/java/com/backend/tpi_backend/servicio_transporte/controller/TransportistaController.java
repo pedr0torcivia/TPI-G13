@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.tpi_backend.servicio_transporte.model.Tramo;
 import com.backend.tpi_backend.servicio_transporte.model.Transportista;
 import com.backend.tpi_backend.servicio_transporte.services.TransportistaService;
 
@@ -50,5 +51,12 @@ public class TransportistaController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         transportistaService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+     // Transportista puede ver todos los tramos asignados a sus camiones
+    @GetMapping("/{id}/tramos")
+    public ResponseEntity<List<Tramo>> getTramosDelTransportista(@PathVariable Integer id) {
+        List<Tramo> tramos = transportistaService.obtenerTramosAsignados(id);
+        return ResponseEntity.ok(tramos);
     }
 }
