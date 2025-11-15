@@ -1,9 +1,13 @@
 package com.backend.tpi_backend.servicio_contenedores.controller;
 
+import com.backend.tpi_backend.servicio_contenedores.dto.SolicitudRequestDTO;
 import com.backend.tpi_backend.servicio_contenedores.model.Solicitud;
 import com.backend.tpi_backend.servicio_contenedores.service.SolicitudService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,53 +19,66 @@ public class SolicitudController {
 
     private final SolicitudService service;
 
-    // --- MÉTODO ACTUALIZADO ---
+    // ============================
+    //          GET ALL
+    // ============================
     @GetMapping
-    public ResponseEntity<List<Solicitud>> findAll(
-            @RequestParam(required = false) String estado) {
-        
+    public ResponseEntity<List<Solicitud>> findAll(@RequestParam(required = false) String estado) {
         List<Solicitud> solicitudes;
-
         if (estado != null && !estado.isEmpty()) {
-            // Si se provee un filtro 'estado', lo usamos
             solicitudes = service.findByEstadoNombre(estado);
         } else {
-            // Si no, devolvemos todo
             solicitudes = service.findAll();
         }
         return ResponseEntity.ok(solicitudes);
     }
 
+    // ============================
+    //          GET BY ID
+    // ============================
     @GetMapping("/{id}")
     public ResponseEntity<Solicitud> findById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-        // --- NUEVO ENDPOINT (Para resolver el TODO de TramoService) ---
-    /**
-     * Devuelve solo el ID del contenedor asociado a una solicitud.
-     * Usado por servicio-transporte (via Feign) para saber a qué
-     * contenedor debe actualizarle el estado.
-     */
+    // ============================
+    //   GET CONTENEDOR ID POR SOLICITUD
+    // ============================
     @GetMapping("/{id}/contenedorId")
     public ResponseEntity<Integer> getContenedorIdBySolicitudId(@PathVariable Integer id) {
         return ResponseEntity.ok(service.findContenedorIdBySolicitudId(id));
     }
 
-    // Para crear, pasamos el ID del contenedor por Query Param
+    // ============================
+    //           CREATE
+    // ============================
     @PostMapping
-    public ResponseEntity<Solicitud> save(@RequestBody Solicitud solicitud,
-                                          @RequestParam Integer contenedorId) {
-        Solicitud guardada = service.save(solicitud, contenedorId);
+    @PreAuthorize("hasRole('CLIENTE')")  // Solo CLIENTE puede crear solicitudes
+    public ResponseEntity<Solicitud> save(
+            @RequestBody SolicitudRequestDTO solicitudDTO,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Solicitud guardada = service.save(solicitudDTO, jwt);
         return ResponseEntity.status(201).body(guardada);
     }
 
+    // ============================
+    //           UPDATE
+    // ============================
     @PutMapping("/{id}")
-    public ResponseEntity<Solicitud> update(@PathVariable Integer id, @RequestBody Solicitud solicitud) {
+    @PreAuthorize("hasRole('OPERADOR')")  // Solo OPERADOR puede modificar solicitudes
+    public ResponseEntity<Solicitud> update(
+            @PathVariable Integer id,
+            @RequestBody Solicitud solicitud) {
+
         return ResponseEntity.ok(service.update(id, solicitud));
     }
 
+    // ============================
+    //           DELETE
+    // ============================
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OPERADOR')")  // Solo OPERADOR puede eliminar solicitudes
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
