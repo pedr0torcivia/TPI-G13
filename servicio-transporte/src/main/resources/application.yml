@@ -44,6 +44,13 @@ spring:
     console:
       enabled: true
       path: /h2-console     # Acceso: http://localhost:8082/h2-console
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8181/realms/tpi-realm
+          # opcional (mejora velocidad)
+          # jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
 
 # ==========================
 # SWAGGER / OPENAPI
