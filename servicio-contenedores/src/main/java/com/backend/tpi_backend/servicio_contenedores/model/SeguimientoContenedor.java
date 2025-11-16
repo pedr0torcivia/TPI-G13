@@ -26,7 +26,7 @@ public class SeguimientoContenedor {
     private ContenedorEstado estado;
 
     @Column(name = "fecha_hora")
-    private LocalDateTime fechaHora;
+    private LocalDateTime fecha;
 
     // --- CLAVE FORÁNEA A OTRO MICROSERVICIO ---
     
@@ -38,6 +38,6 @@ public class SeguimientoContenedor {
         this.contenedor = contenedor;
         this.estado = estado;
         this.ubicacionId = ubicacionId;
-        this.fechaHora = LocalDateTime.now();
+        this.fecha = LocalDateTime.now();
     }
 }

@@ -2,6 +2,10 @@ server:
   port: 8082
 
 spring:
+  # SOLUCIÓN AL ERROR: Permite sobrescribir definiciones de beans duplicadas (e.g., Feign Clients)
+  main:
+    allow-bean-definition-overriding: true
+    
   application:
     name: servicio-transporte
 
@@ -19,15 +23,13 @@ spring:
   # ==========================
   jpa:
     hibernate:
-      ddl-auto: update     # Crea/actualiza tablas, sin borrar datos
-    show-sql: true           # Muestra las consultas SQL en consola
+      ddl-auto: update 
+    show-sql: true 
     database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
         format_sql: true
-    
-    # --- ESTA ES LA CORRECCIÓN ---
-    # Esta línea debe estar aquí, al nivel de 'jpa', no dentro de 'properties'
+        
     defer-datasource-initialization: true
 
   # ==========================
@@ -35,7 +37,7 @@ spring:
   # ==========================
   sql:
     init:
-      mode: always   # Ejecuta siempre data.sql al iniciar
+      mode: always # Ejecuta siempre data.sql al iniciar
 
   # ==========================
   # H2 CONSOLE
@@ -43,23 +45,21 @@ spring:
   h2:
     console:
       enabled: true
-      path: /h2-console     # Acceso: http://localhost:8082/h2-console
+      path: /h2-console
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8181/realms/tpi-realm
-          # opcional (mejora velocidad)
-          # jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
 
 # ==========================
 # SWAGGER / OPENAPI
 # ==========================
 springdoc:
   api-docs:
-    path: /api-docs       # JSON de OpenAPI
+    path: /api-docs 
   swagger-ui:
-    path: /swagger-ui.html  # Interfaz Swagger
+    path: /swagger-ui.html
 
 # ==========================
 # EUREKA CLIENT CONFIG
