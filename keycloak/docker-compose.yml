@@ -1,19 +1,19 @@
-version: '3.1'
+version: "3.8"
 
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.3
     container_name: tpi-keycloak
-    command: start-dev
-    ports:
-      # Lo exponemos en el 8181 (como dice tu application.yml)
-      - "8181:8080"
+    command:
+      - start-dev
     environment:
-      # Usuario y pass para entrar a la consola de admin
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin123
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_HOSTNAME: localhost
+    ports:
+      - "8181:8080"
     volumes:
-      - keycloak_data:/opt/keycloak/data
+      # Carpeta local para los datos de Keycloak (NUEVA)
+      - ./data:/opt/keycloak/data
 
-volumes:
-  keycloak_data:
+# NO usamos volúmenes named para evitar arrastrar mierda vieja
