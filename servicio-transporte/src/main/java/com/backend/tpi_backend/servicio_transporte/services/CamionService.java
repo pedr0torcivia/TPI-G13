@@ -50,4 +50,13 @@ public class CamionService implements BaseService<Camion, String> {
         // Llama al método de CamionRepository
         return camionRepository.findByDisponibilidadTrue();
     }
+
+    public List<Camion> obtenerCamionesElegibles(double peso, double volumen) {
+    return camionRepository.findAll()
+            .stream()
+            .filter(c -> c.getDisponibilidad())
+            .filter(c -> c.getCapacidadPesoKg() >= peso)
+            .filter(c -> c.getCapacidadVolumenM3() >= volumen)
+            .toList();
+}
 }

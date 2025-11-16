@@ -39,4 +39,26 @@ public class OsrmClient {
         double distanciaMetros = response.getRoutes().get(0).getDistance();
         return distanciaMetros / 1000.0; // pasamos a km
     }
+    
+    public double calcularDuracionHoras(double latOrigen, double lngOrigen,
+                                    double latDestino, double lngDestino) {
+
+    String coords = String.format(Locale.US,
+            "%f,%f;%f,%f", lngOrigen, latOrigen, lngDestino, latDestino);
+
+    String url = osrmBaseUrl + "/route/v1/driving/" + coords + "?overview=false";
+
+    OsrmRouteResponse response =
+            restTemplate.getForObject(url, OsrmRouteResponse.class);
+
+    if (response == null ||
+        !"Ok".equalsIgnoreCase(response.getCode()) ||
+        response.getRoutes() == null ||
+        response.getRoutes().isEmpty()) {
+        throw new IllegalStateException("No se pudo calcular duración con OSRM");
+    }
+
+    double segundos = response.getRoutes().get(0).getDuration();
+    return segundos / 3600.0; // convertir segundos a horas
+}
 }

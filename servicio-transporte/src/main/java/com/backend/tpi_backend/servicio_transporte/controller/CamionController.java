@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.tpi_backend.servicio_transporte.model.Camion;
@@ -68,5 +69,13 @@ public class CamionController {
     public ResponseEntity<List<Camion>> getDisponibles() {
         List<Camion> camionesDisponibles = camionService.findDisponibles();
         return ResponseEntity.ok(camionesDisponibles);
+    }
+
+    @GetMapping("/elegibles")
+    public List<Camion> obtenerCamionesElegibles(
+            @RequestParam double peso,
+            @RequestParam double volumen) {
+
+        return camionService.obtenerCamionesElegibles(peso, volumen);
     }
 }

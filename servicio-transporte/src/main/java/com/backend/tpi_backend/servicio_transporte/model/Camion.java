@@ -19,10 +19,10 @@ public class Camion {
     private Transportista transportista;
 
     @Column(name = "capacidad_peso_kg", precision = 12, scale = 3)
-    private BigDecimal capacidadPesoKg;
+    private double capacidadPesoKg;
 
     @Column(name = "capacidad_volumen_m3", precision = 12, scale = 3)
-    private BigDecimal capacidadVolumenM3;
+    private double capacidadVolumenM3;
 
     private Boolean disponibilidad;
 

@@ -5,22 +5,13 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.backend.tpi_backend.servicio_transporte.dto.RutaAsignacionRequest;
 import com.backend.tpi_backend.servicio_transporte.dto.RutaTentativaResponse;
 import com.backend.tpi_backend.servicio_transporte.model.Ruta;
 import com.backend.tpi_backend.servicio_transporte.services.RutaService;
-import com.backend.tpi_backend.servicio_transporte.services.RutaPlanificacionService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -62,23 +53,21 @@ public class RutaController {
     public ResponseEntity<List<Ruta>> obtenerRutasPorSolicitud(@PathVariable Integer idSolicitud) {
         return ResponseEntity.ok(rutaService.obtenerRutasPorSolicitud(idSolicitud));
     }
-    //Para usar el servicio de rutas tentativas
-    private final RutaPlanificacionService planificacionService;
 
-    @PreAuthorize("hasRole('OPERADOR')")
-    @GetMapping("/tentativa")
-    public ResponseEntity<RutaTentativaResponse> calcularRutaTentativa(
-        @RequestParam Integer origenId,
-        @RequestParam Integer destinoId,
-        @RequestParam Integer contenedorId
-    ) {
-        return ResponseEntity.ok(planificacionService.calcularRutaTentativa(origenId, destinoId, contenedorId));
+    // generar ruta tentativa
+    @GetMapping("/ruta-tentativa")
+    public ResponseEntity<RutaTentativaResponse> generarRutaTentativa(
+            @RequestParam Integer origenId,
+            @RequestParam Integer destinoId,
+            @RequestParam Integer contenedorId) {
+
+        RutaTentativaResponse response = rutaService.generarRutaTentativa(origenId, destinoId, contenedorId);
+
+        return ResponseEntity.ok(response);
     }
 
-    // ===================================================
-    //  🚀 NUEVO ENDPOINT: Asignar ruta a solicitud
-    // ===================================================
-    @PreAuthorize("hasRole('OPERADOR')") 
+    // asignar ruta a solicitud
+    @PreAuthorize("hasRole('OPERADOR')")
     @PostMapping("/asignar")
     public ResponseEntity<?> asignarRuta(@RequestBody RutaAsignacionRequest request) {
 
@@ -87,9 +76,6 @@ public class RutaController {
         return ResponseEntity.ok(
                 Map.of(
                         "mensaje", "Ruta asignada correctamente",
-                        "rutaId", ruta.getId()
-                )
-        );
+                        "rutaId", ruta.getId()));
     }
-
 }

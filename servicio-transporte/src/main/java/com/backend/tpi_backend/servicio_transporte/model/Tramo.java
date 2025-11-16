@@ -59,4 +59,10 @@ public class Tramo {
     @ManyToOne
     @JoinColumn(name = "camion_dominio")
     private Camion camion;
+
+    @Column(name = "desvio_horas")
+    private Double desvioHoras;
+
+    @Column(name = "cumplio_estimacion")
+    private Boolean cumplioEstimacion;
 }

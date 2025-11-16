@@ -77,7 +77,7 @@ public class TramoController {
         return ResponseEntity.ok(tramoService.finalizarTramo(id));
     }
 
-    // --- 🚀 NUEVO ENDPOINT PARA CALCULAR TARIFA ---
+    // --- NUEVO ENDPOINT PARA CALCULAR TARIFA ---
     
     /**
      * Calcula la tarifa final de un tramo específico.
