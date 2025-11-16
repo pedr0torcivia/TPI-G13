@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,6 +65,7 @@ public class RutaController {
     //Para usar el servicio de rutas tentativas
     private final RutaPlanificacionService planificacionService;
 
+    @PreAuthorize("hasRole('OPERADOR')")
     @GetMapping("/tentativa")
     public ResponseEntity<RutaTentativaResponse> calcularRutaTentativa(
         @RequestParam Integer origenId,
@@ -76,6 +78,7 @@ public class RutaController {
     // ===================================================
     //  🚀 NUEVO ENDPOINT: Asignar ruta a solicitud
     // ===================================================
+    @PreAuthorize("hasRole('OPERADOR')") 
     @PostMapping("/asignar")
     public ResponseEntity<?> asignarRuta(@RequestBody RutaAsignacionRequest request) {
 

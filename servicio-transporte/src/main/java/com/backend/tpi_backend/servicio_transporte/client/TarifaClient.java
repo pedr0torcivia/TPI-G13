@@ -2,6 +2,7 @@ package com.backend.tpi_backend.servicio_transporte.client;
 
 import com.backend.tpi_backend.servicio_transporte.dto.CalculoTarifaRequest;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping; // <-- IMPORTAR GET
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -9,7 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "servicio-tarifa") 
 public interface TarifaClient {
 
-    // El endpoint que creamos en el TarifaController
+  // El endpoint que creamos en el TarifaController
     @PostMapping("/api/tarifas/calcular") 
     Float calcularTarifa(@RequestBody CalculoTarifaRequest request);
+    
+    // --- MÉTODO NUEVO (Para eliminar la simulación) ---
+    @GetMapping("/api/tarifas/valor-combustible")
+    Float getValorLitroCombustible();
 }

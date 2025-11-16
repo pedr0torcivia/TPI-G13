@@ -3,6 +3,7 @@ package com.backend.tpi_backend.servicio_transporte.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +55,7 @@ public class TramoController {
     // --- Endpoint para asignar camión ---
     // NOTA: Cambié la URL a "/{idTramo}/asignar-camion/{dominioCamion}" 
     //       para ser consistente con el mapping "/tramos" de la clase.
+    @PreAuthorize("hasRole('OPERADOR')")
     @PutMapping("/{idTramo}/asignar-camion/{dominioCamion}")
     public ResponseEntity<String> asignarCamion(
             @PathVariable Integer idTramo,
@@ -63,11 +65,13 @@ public class TramoController {
         return ResponseEntity.ok(msg);
     }
 
+    @PreAuthorize("hasRole('TRANSPORTISTA')")
     @PutMapping("/{id}/inicio")
     public ResponseEntity<Tramo> iniciarTramo(@PathVariable Integer id) {
         return ResponseEntity.ok(tramoService.iniciarTramo(id));
     }
 
+    @PreAuthorize("hasRole('TRANSPORTISTA')")
     @PutMapping("/{id}/fin")
     public ResponseEntity<Tramo> finalizarTramo(@PathVariable Integer id) {
         return ResponseEntity.ok(tramoService.finalizarTramo(id));
@@ -83,6 +87,7 @@ public class TramoController {
      * @param id El ID del Tramo
      * @return La tarifa calculada como un valor float.
      */
+    @PreAuthorize("hasRole('OPERADOR')")
     @GetMapping("/{id}/tarifa")
     public ResponseEntity<Float> calcularTarifa(@PathVariable Integer id) {
         // Llama al método que creamos en TramoService

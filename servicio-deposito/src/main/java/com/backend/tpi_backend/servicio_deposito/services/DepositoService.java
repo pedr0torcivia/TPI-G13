@@ -96,4 +96,21 @@ public class DepositoService implements BaseService<Deposito, Integer> {
     public void deleteById(Integer id) {
         depositoRepository.deleteById(id);
     }
+
+        /**
+     * NUEVO: Busca el costo de estadía diario a partir del ID de la Ubicación (el origen/destino del tramo).
+     */
+    public Double getCostoEstadiaByUbicacionId(Integer ubicacionId) {
+        // En una implementación real, buscarías Deposito por el ID de Ubicacion
+        // Asumo que tienes un método findByUbicacion_Id en DepositoRepository
+        
+        Optional<Deposito> depositoOpt = depositoRepository.findByUbicacion_Id(ubicacionId);
+        
+        if (depositoOpt.isPresent()) {
+            return depositoOpt.get().getCostoEstadia();
+        } else {
+            // Si la ubicación no es un depósito (ej: es un terreno), el costo de estadía es 0.
+            return 0.0;
+        }
+}
 }

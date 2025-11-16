@@ -1,16 +1,20 @@
 package com.backend.tpi_backend.servicio_transporte.services;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
 
 import com.backend.tpi_backend.servicio_transporte.client.ContenedoresClient;
 import com.backend.tpi_backend.servicio_transporte.client.TarifaClient;
 import com.backend.tpi_backend.servicio_transporte.client.UbicacionClient;
+import com.backend.tpi_backend.servicio_transporte.client.DepositoClient;
 import com.backend.tpi_backend.servicio_transporte.client.osrm.OsrmClient;
 import com.backend.tpi_backend.servicio_transporte.dto.ContenedorDTO;
 import com.backend.tpi_backend.servicio_transporte.dto.UbicacionDTO;
 import com.backend.tpi_backend.servicio_transporte.dto.CalculoTarifaRequest;
+import com.backend.tpi_backend.servicio_transporte.repositories.TransportistaRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -34,16 +38,25 @@ public class TramoService implements BaseService<Tramo, Integer> {
     private final TramoRepository tramoRepository;
     private final CamionRepository camionRepository;
     private final TramoEstadoRepository tramoEstadoRepository;
+    private final TransportistaRepository transportistaRepository;
 
-    // --- 2. INYECTAR CLIENTE FEIGN ---
+    // --- CLIENTES ---
     private final ContenedoresClient contenedoresClient;
     private final OsrmClient osrmClient;
     private final UbicacionClient ubicacionClient;
     private final TarifaClient tarifaClient;
-    // --- 3. IDs de ESTADO del servicio-contenedores ---
+    private final DepositoClient depositoClient;
+
+    // --- Constantes de ESTADO ---
     private static final int ID_CONTENEDOR_EN_TRANSITO = 3;
     private static final int ID_CONTENEDOR_ENTREGADO = 4;
+    private static final String ESTADO_ASIGNADO = "asignado";
+    private static final String ESTADO_INICIADO = "iniciado";
+    private static final String ESTADO_FINALIZADO = "finalizado";
 
+    // =========================================================================
+    // MÉTODOS OBLIGATORIOS (CRUD BASE)
+    // =========================================================================
     @Override
     public List<Tramo> findAll() {
         return tramoRepository.findAll();
@@ -73,52 +86,71 @@ public class TramoService implements BaseService<Tramo, Integer> {
         tramoRepository.deleteById(id);
     }
 
+    // =========================================================================
+    // LÓGICA DE SEGURIDAD (Validar Transportista)
+    // =========================================================================
+
+    private void validarTransportista(Tramo tramo, String idKeycloak) {
+        if (tramo.getCamion() == null) {
+            throw new RuntimeException("El tramo no tiene un camión asignado.");
+        }
+
+        String idDuenio = tramo.getCamion().getTransportista().getIdKeycloak();
+
+        if (!idKeycloak.equals(idDuenio)) {
+            throw new RuntimeException("Acceso denegado. Este tramo no está asignado a su transportista.");
+        }
+    }
+
+    // =========================================================================
+    // REQUERIMIENTO #6: ASIGNAR CAMIÓN (OPERADOR)
+    // =========================================================================
     @Transactional
     public String asignarCamion(Integer idTramo, String dominioCamion) {
 
-    // 1. Obtener tramo y camión
-    Tramo tramo = tramoRepository.findById(idTramo)
-            .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
-    
-    Camion camion = camionRepository.findById(dominioCamion)
-            .orElseThrow(() -> new RuntimeException("Camión no encontrado"));
+        // 1. Obtener tramo y camión
+        Tramo tramo = tramoRepository.findById(idTramo)
+                .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
 
-    Ruta ruta = tramo.getRuta();
+        Camion camion = camionRepository.findById(dominioCamion)
+                .orElseThrow(() -> new RuntimeException("Camión no encontrado"));
 
-    // 2. Obtener ID del contenedor desde solicitud
-    Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(ruta.getSolicitudId());
-    if (idContenedor == null) {
-        throw new RuntimeException("No se encontró contenedor asociado a la solicitud");
-    }
+        Ruta ruta = tramo.getRuta();
 
-    // 3. Obtener contenedor completo
-    ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
+        // 2. Obtener ID del contenedor desde solicitud
+        Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(ruta.getSolicitudId());
+        if (idContenedor == null) {
+            throw new RuntimeException("No se encontró contenedor asociado a la solicitud");
+        }
 
-    // 4. Validar capacidad del camión
-    double capacidadPeso = camion.getCapacidadPesoKg().doubleValue();
-    double capacidadVolumen = camion.getCapacidadVolumenM3().doubleValue();
+        // 3. Obtener contenedor completo
+        ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
 
-    if (contenedor.getPesoKg() > capacidadPeso) {
-        throw new RuntimeException("El contenedor supera la capacidad de peso del camión");
-    }
+        // 4. Validar capacidad del camión (Req. 11)
+        double capacidadPeso = camion.getCapacidadPesoKg().doubleValue();
+        double capacidadVolumen = camion.getCapacidadVolumenM3().doubleValue();
 
-    if (contenedor.getVolumenM3() > capacidadVolumen) {
-        throw new RuntimeException("El contenedor supera la capacidad de volumen del camión");
-    }
+        if (contenedor.getPesoKg() > capacidadPeso) {
+            throw new RuntimeException("El contenedor supera la capacidad de peso del camión");
+        }
 
-    // 5. Asignar camión al tramo
-    TramoEstado estadoAsignado = tramoEstadoRepository.findByNombre("asignado")
-            .orElseThrow(() -> new RuntimeException("Estado 'asignado' no encontrado"));
+        if (contenedor.getVolumenM3() > capacidadVolumen) {
+            throw new RuntimeException("El contenedor supera la capacidad de volumen del camión");
+        }
 
-    tramo.setCamion(camion);
-    tramo.setEstado(estadoAsignado);
-    camion.setDisponibilidad(false);
+        // 5. Asignar camión al tramo
+        TramoEstado estadoAsignado = tramoEstadoRepository.findByNombre(ESTADO_ASIGNADO)
+                .orElseThrow(() -> new RuntimeException("Estado 'asignado' no encontrado"));
 
-    // 6. Guardar
-    tramoRepository.save(tramo);
-    camionRepository.save(camion);
+        tramo.setCamion(camion);
+        tramo.setEstado(estadoAsignado);
+        camion.setDisponibilidad(false);
 
-    return "Camión asignado correctamente";
+        // 6. Guardar
+        tramoRepository.save(tramo);
+        camionRepository.save(camion);
+
+        return "Camión asignado correctamente";
     }
 
     @Transactional
@@ -126,7 +158,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
         // 1. Lógica local
         Tramo tramo = tramoRepository.findById(idTramo)
                 .orElseThrow(() -> new RuntimeException("Tramo no encontrado con id " + idTramo));
-        TramoEstado estadoIniciado = tramoEstadoRepository.findByNombre("iniciado")
+        TramoEstado estadoIniciado = tramoEstadoRepository.findByNombre(ESTADO_INICIADO)
                 .orElseThrow(() -> new RuntimeException("Estado 'iniciado' no encontrado"));
         if (tramo.getCamion() == null) {
             throw new RuntimeException("El tramo no tiene un camión asignado. No puede iniciarse.");
@@ -145,15 +177,15 @@ public class TramoService implements BaseService<Tramo, Integer> {
 
             // PASO 4.2: Llamar a Feign para obtener el ID del contenedor
             Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(solicitudId);
-            
-            Integer idUbicacion = tramo.getOrigenId().intValue(); 
+
+            Integer idUbicacion = tramo.getOrigenId().intValue();
 
             // PASO 4.3: Actualizar estado en servicio-contenedores
             contenedoresClient.updateEstado(idContenedor, ID_CONTENEDOR_EN_TRANSITO, idUbicacion);
 
         } catch (Exception e) {
             System.err.println("Error al actualizar estado en Contenedores (iniciarTramo): " + e.getMessage());
-            // Opcional: Podríamos revertir el estado local si la llamada Feign es crítica
+            // Opcional: revertir estado local si la llamada es crítica
         }
 
         return tramoGuardado;
@@ -164,7 +196,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
         // 1. Lógica local
         Tramo tramo = tramoRepository.findById(idTramo)
                 .orElseThrow(() -> new RuntimeException("Tramo no encontrado con id " + idTramo));
-        TramoEstado estadoFinalizado = tramoEstadoRepository.findByNombre("finalizado")
+        TramoEstado estadoFinalizado = tramoEstadoRepository.findByNombre(ESTADO_FINALIZADO)
                 .orElseThrow(() -> new RuntimeException("Estado 'finalizado' no encontrado"));
         if (tramo.getCamion() == null) {
             throw new RuntimeException("El tramo no tiene un camión asignado. No puede finalizarse.");
@@ -174,18 +206,26 @@ public class TramoService implements BaseService<Tramo, Integer> {
         Camion camion = tramo.getCamion();
         camion.setDisponibilidad(true);
         camionRepository.save(camion);
-        Tramo tramoGuardado = tramoRepository.save(tramo);
+        Tramo tramoGuardado = tramoRepository.save(tramo); // Persiste fechas reales
+
+        // --- NUEVO PASO: CERRAR EL COSTO REAL (Req. 9) ---
+        try {
+            calcularYCerrarCostoReal(tramoGuardado);
+        } catch (Exception e) {
+            System.err.println("Advertencia: No se pudo calcular el costo real al finalizar el tramo: " + e.getMessage());
+        }
 
         // --- 5. LLAMADA FEIGN A SERVICIO-CONTENEDORES ---
-        
+
         // PASO 5.1: Verificar si este es el último tramo de la ruta
         boolean esUltimoTramo = true;
         List<Tramo> tramosDeLaRuta = tramoRepository.findByRuta(tramo.getRuta());
-        
+
         for (Tramo t : tramosDeLaRuta) {
             // Si encontramos CUALQUIER otro tramo que no esté "finalizado",
             // significa que este NO es el último.
-            if (!t.getId().equals(tramoGuardado.getId()) && !t.getEstado().getNombre().equals("finalizado")) {
+            if (!t.getId().equals(tramoGuardado.getId())
+                    && !ESTADO_FINALIZADO.equals(t.getEstado().getNombre())) {
                 esUltimoTramo = false;
                 break;
             }
@@ -193,12 +233,12 @@ public class TramoService implements BaseService<Tramo, Integer> {
 
         // PASO 5.2: Decidir el estado a enviar
         Integer estadoContenedorAEnviar = esUltimoTramo ? ID_CONTENEDOR_ENTREGADO : ID_CONTENEDOR_EN_TRANSITO;
-        
+
         try {
             // PASO 5.3: Obtener ID de contenedor
             Integer solicitudId = tramo.getRuta().getSolicitudId();
             Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(solicitudId);
-            Integer idUbicacion = tramo.getDestinoId().intValue(); 
+            Integer idUbicacion = tramo.getDestinoId().intValue();
 
             // PASO 5.4: Enviar el estado correcto
             contenedoresClient.updateEstado(idContenedor, estadoContenedorAEnviar, idUbicacion);
@@ -210,92 +250,150 @@ public class TramoService implements BaseService<Tramo, Integer> {
         return tramoGuardado;
     }
 
-    // --- 1. NUEVO MÉTODO PARA CALCULAR DISTANCIA (de tus instrucciones) ---
+    // =========================================================================
+    // REQUERIMIENTO #9: MÉTODO DE CÁLCULO DE COSTO REAL (NUEVO)
+    // =========================================================================
 
-    public double calcularDistanciaTramoEnKm(Integer origenId, Integer destinoId) {
-        // Llama al servicio-deposito para obtener coordenadas
-        UbicacionDTO origen = ubicacionClient.obtenerPorId(origenId);
-        UbicacionDTO destino = ubicacionClient.obtenerPorId(destinoId);
+    /**
+     * Calcula el costo real del tramo (incluyendo estadía real) y persiste el resultado.
+     * Implementa Req. 8 (parte tramo) y central del Req. 9.
+     */
+    @Transactional
+    public BigDecimal calcularYCerrarCostoReal(Tramo tramo) {
+        if (tramo.getFechaHoraInicio() == null || tramo.getFechaHoraFin() == null) {
+            throw new RuntimeException("El tramo debe tener fechas de inicio y fin reales para calcular el costo.");
+        }
 
-        // Llama al OsrmClient (Docker)
-        return osrmClient.calcularDistanciaKm(
-                origen.getLat(), origen.getLng(),
-                destino.getLat(), destino.getLng()
-        );
-    }
+        // 1. Calcular Días Ocupados (Estadía Real - Req. 8.3)
+        Duration duracion = Duration.between(tramo.getFechaHoraInicio(), tramo.getFechaHoraFin());
+        long horas = duracion.toHours();
+        int diasOcupados;
 
+        if (horas <= 0) {
+            diasOcupados = 1; // mínimo 1 día
+        } else {
+            diasOcupados = (int) Math.ceil(horas / 24.0);
+        }
 
-public float obtenerTarifaParaTramo(Integer idTramo) {
-        // 1. Obtener el tramo
-        Tramo tramo = tramoRepository.findById(idTramo)
-                .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
-
-        // 2. Calcular distancia (usando el método nuevo)
-        float distanciaKm = (float) calcularDistanciaTramoEnKm(
-                tramo.getOrigenId(),
-                tramo.getDestinoId()
-        );
-
-        // 3. Obtener datos del contenedor (peso, volumen)
+        // 2. Obtener Parámetros de Clientes (Req. 8)
         Integer solicitudId = tramo.getRuta().getSolicitudId();
         Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(solicitudId);
         ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
 
-        // 4. Obtener datos del camión (consumo)
         Camion camion = tramo.getCamion();
         if (camion == null) {
-            throw new RuntimeException("El tramo no tiene camión asignado");
+            throw new RuntimeException("Tramo sin camión para calcular costo real.");
         }
-        
-        // <-- CORREGIDO: Usamos el getter de tu campo BigDecimal y lo pasamos a float
+
+        // 3. Clientes Feign
+        float valorLitroCombustible = tarifaClient.getValorLitroCombustible();
+        Double costoEstadiaDoble = depositoClient.getCostoEstadiaByUbicacionId(tramo.getDestinoId());
+        float costoEstadiaDiario = costoEstadiaDoble != null ? costoEstadiaDoble.floatValue() : 0f;
+
+        // 4. Distancia (Req. 8.1)
+        float distanciaKm = (float) calcularDistanciaTramoEnKm(tramo.getOrigenId(), tramo.getDestinoId());
         float consumoCombustible = camion.getConsumoCombustibleKm().floatValue();
 
-        // 5. Simular otros datos (esto debería venir de algún lado)
-        float valorLitroCombustible = 950.0f; // Ejemplo
-        int diasOcupados = 1; // Ejemplo
-        float costoEstadiaDiario = 5000.0f; // Ejemplo
-
-        // 6. Armar la solicitud para el servicio-tarifa
+        // 5. Preparar Request y llamar a TarifaService
         CalculoTarifaRequest request = new CalculoTarifaRequest();
-        
-        // <-- CORREGIDO: Casteamos el 'double' primitivo a 'float'
-        request.setVolumen((float) contenedor.getVolumenM3()); 
+        request.setVolumen((float) contenedor.getVolumenM3());
         request.setPeso((float) contenedor.getPesoKg());
-        
         request.setDistanciaKm(distanciaKm);
         request.setValorLitroCombustible(valorLitroCombustible);
         request.setConsumoCombustible(consumoCombustible);
         request.setDiasOcupados(diasOcupados);
         request.setCostoEstadiaDiario(costoEstadiaDiario);
 
-        // 7. Llamar al servicio-tarifa y devolver el costo
+        float costoFinal = tarifaClient.calcularTarifa(request);
+
+        // 6. Persistir el Costo Real (Req. 9)
+        BigDecimal costoRealBD = BigDecimal.valueOf(costoFinal);
+        tramo.setCostoReal(costoRealBD);
+        tramoRepository.save(tramo);
+
+        // TODO: Llamar a SolicitudService para acumular y actualizar el costo total real de la Solicitud.
+
+        return costoRealBD;
+    }
+
+    // =========================================================================
+    // REQUERIMIENTO #8: CÁLCULO DE COSTOS (INFRAESTRUCTURA)
+    // =========================================================================
+
+    public double calcularDistanciaTramoEnKm(Integer origenId, Integer destinoId) {
+        UbicacionDTO origen = ubicacionClient.obtenerPorId(origenId);
+        UbicacionDTO destino = ubicacionClient.obtenerPorId(destinoId);
+        return osrmClient.calcularDistanciaKm(
+                origen.getLat(), origen.getLng(),
+                destino.getLat(), destino.getLng()
+        );
+    }
+
+    public float obtenerTarifaParaTramo(Integer idTramo) {
+        Tramo tramo = tramoRepository.findById(idTramo)
+                .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
+
+        float distanciaKm = (float) calcularDistanciaTramoEnKm(tramo.getOrigenId(), tramo.getDestinoId());
+        Integer solicitudId = tramo.getRuta().getSolicitudId();
+        Integer idContenedor = contenedoresClient.getContenedorIdBySolicitudId(solicitudId);
+        ContenedorDTO contenedor = contenedoresClient.getContenedor(idContenedor);
+
+        // OBTENER VALORES REALES
+        float valorLitroCombustible = tarifaClient.getValorLitroCombustible();
+
+        // Uso el destino como ubicación, asumiendo que el Depósito está en el destino del tramo
+        Double costoEstadiaDoble = depositoClient.getCostoEstadiaByUbicacionId(tramo.getDestinoId());
+        float costoEstadiaDiario = costoEstadiaDoble != null ? costoEstadiaDoble.floatValue() : 0f;
+
+        Camion camion = tramo.getCamion();
+        if (camion == null) {
+            throw new RuntimeException("El tramo no tiene camión asignado");
+        }
+
+        float consumoCombustible = camion.getConsumoCombustibleKm().floatValue();
+
+        int diasOcupados = 1; // estimado/base
+
+        CalculoTarifaRequest request = new CalculoTarifaRequest();
+        request.setVolumen((float) contenedor.getVolumenM3());
+        request.setPeso((float) contenedor.getPesoKg());
+        request.setDistanciaKm(distanciaKm);
+        request.setValorLitroCombustible(valorLitroCombustible);
+        request.setConsumoCombustible(consumoCombustible);
+        request.setDiasOcupados(diasOcupados);
+        request.setCostoEstadiaDiario(costoEstadiaDiario);
+
         return tarifaClient.calcularTarifa(request);
     }
 
-    // --- 2. NUEVO MÉTODO PARA TARIFA ESTIMADA (PASO 5) ---
+    // =========================================================================
+    // LÓGICA DE CÁLCULO DE TARIFA ESTIMADA
+    // =========================================================================
+
+    /**
+     * Calcula una tarifa estimada inicial para una ruta o tramo, asumiendo valores promedio
+     * de consumo y sin considerar estadía.
+     */
     public float obtenerTarifaParaTramoEstimado(Integer contenedorId, double distanciaKm) {
 
-    // 1. Obtener contenedor desde microservicio contenedores
-    ContenedorDTO contenedor = contenedoresClient.getContenedor(contenedorId);
+        ContenedorDTO contenedor = contenedoresClient.getContenedor(contenedorId);
 
-    if (contenedor == null) {
-        throw new RuntimeException("No se encontró el contenedor con ID: " + contenedorId);
+        if (contenedor == null) {
+            throw new RuntimeException("No se encontró el contenedor con ID: " + contenedorId);
+        }
+
+        float valorLitroCombustible = tarifaClient.getValorLitroCombustible();
+
+        CalculoTarifaRequest request = new CalculoTarifaRequest();
+        request.setPeso((float) contenedor.getPesoKg());
+        request.setVolumen((float) contenedor.getVolumenM3());
+        request.setDistanciaKm((float) distanciaKm);
+
+        request.setValorLitroCombustible(valorLitroCombustible);
+        request.setConsumoCombustible(0.35f); // consumo promedio
+        request.setDiasOcupados(0);
+        request.setCostoEstadiaDiario(0f);
+
+        return tarifaClient.calcularTarifa(request);
     }
-
-    // 2. Armar request para el servicio de tarifas
-    CalculoTarifaRequest request = new CalculoTarifaRequest();
-    request.setPeso((float) contenedor.getPesoKg());
-    request.setVolumen((float) contenedor.getVolumenM3());
-    request.setDistanciaKm((float) distanciaKm);
-
-    // Valores base (configurables)
-    request.setValorLitroCombustible(900f);
-    request.setConsumoCombustible(0.35f);   // consumo promedio sin camión
-    request.setDiasOcupados(0);
-    request.setCostoEstadiaDiario(0f);
-
-    // 3. Llamar al microservicio tarifas
-    return tarifaClient.calcularTarifa(request);
-}
-
 }

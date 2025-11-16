@@ -7,6 +7,8 @@ import com.backend.tpi_backend.servicio_transporte.client.ContenedoresClient;
 
 import com.backend.tpi_backend.servicio_transporte.dto.*;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

@@ -1475,3 +1475,204 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: E:/Universidad/B
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 54 more
+2025-11-15 22:52:33.669946-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:724)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:703)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 22 more
+2025-11-15 22:52:48.864076-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:724)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:703)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 22 more
+2025-11-15 22:52:55.970411-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.engine.SessionRemote.autoReconnect(SessionRemote.java:515)
+	at org.h2.engine.SessionRemote.removeServer(SessionRemote.java:475)
+	at org.h2.engine.SessionRemote.hasPendingTransaction(SessionRemote.java:183)
+	at org.h2.jdbc.JdbcConnection.close(JdbcConnection.java:378)
+	at com.zaxxer.hikari.pool.PoolBase.quietlyCloseConnection(PoolBase.java:139)
+	at com.zaxxer.hikari.pool.HikariPool.lambda$closeConnection$1(HikariPool.java:435)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 19 more
+2025-11-15 22:53:08.056038-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.engine.SessionRemote.autoReconnect(SessionRemote.java:515)
+	at org.h2.engine.SessionRemote.removeServer(SessionRemote.java:475)
+	at org.h2.engine.SessionRemote.hasPendingTransaction(SessionRemote.java:183)
+	at org.h2.jdbc.JdbcConnection.close(JdbcConnection.java:378)
+	at com.zaxxer.hikari.pool.PoolBase.quietlyCloseConnection(PoolBase.java:139)
+	at com.zaxxer.hikari.pool.HikariPool.lambda$closeConnection$1(HikariPool.java:435)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 19 more
+2025-11-15 22:53:14.097568-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:724)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:703)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 22 more
+2025-11-15 22:53:21.219270-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:125)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:724)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:703)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 22 more
+2025-11-15 22:53:29.342034-03:00 database: opening E:/Universidad/Backend/TPI-G13/h2/shared_db
+org.h2.message.DbException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.get(DbException.java:212)
+	at org.h2.store.FileLock.getExceptionFatal(FileLock.java:429)
+	at org.h2.store.FileLock.waitUntilOld(FileLock.java:301)
+	at org.h2.store.FileLock.lockFile(FileLock.java:318)
+	at org.h2.store.FileLock.lock(FileLock.java:110)
+	at org.h2.engine.Database.<init>(Database.java:317)
+	at org.h2.engine.Engine.openSession(Engine.java:92)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:343)
+	at org.h2.engine.SessionRemote.autoReconnect(SessionRemote.java:515)
+	at org.h2.engine.SessionRemote.removeServer(SessionRemote.java:475)
+	at org.h2.engine.SessionRemote.hasPendingTransaction(SessionRemote.java:183)
+	at org.h2.jdbc.JdbcConnection.close(JdbcConnection.java:378)
+	at com.zaxxer.hikari.pool.PoolBase.quietlyCloseConnection(PoolBase.java:139)
+	at com.zaxxer.hikari.pool.HikariPool.lambda$closeConnection$1(HikariPool.java:435)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Error abriendo la base de datos: "Lock file recently modified"
+Error opening database: "Lock file recently modified" [8000-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:516)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 19 more

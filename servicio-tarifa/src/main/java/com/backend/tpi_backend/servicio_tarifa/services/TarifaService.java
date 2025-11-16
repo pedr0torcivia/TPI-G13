@@ -44,36 +44,47 @@ public class TarifaService implements BaseService<Tarifa, Integer> {
     tarifaRepository.deleteById(id);
   }
 
+  
+
   /* ME LLEGA LA DISTANCIA DESDE SERVICIO TRANSPORTE
   public float calcularDistancia(float latOrigen, float lonOrigen, float latDestino, float lonDestino) {
     return 0.2f; // Valor fijo para simplificar, usa api 
   }
   */
 
-  public float calcularEstadia(int diasOcupados, float costoEstadiaDiario) {
-    return diasOcupados * costoEstadiaDiario;
-  }
+    
+    public Float getValorLitroCombustible() {
+        // En una implementación real, buscarías la tarifa por fecha de vigencia.
+        // Aquí asumimos la Tarifa ID=1 es la activa.
+        Tarifa tarifa = tarifaRepository.findById(1)
+            .orElseThrow(() -> new RuntimeException("Tarifa base (ID 1) no encontrada para Valor Litro."));
+        
+        return tarifa.getValorLitroCombustible();
+    }
 
-public float calcularTarifaTramo(float volumen,
-                                     float peso,
-                                     float distanciaKm, // <-- PARÁMETRO AGREGADO
-                                     float valorLitroCombustible,
-                                     float consumoCombustible, 
-                                     int diasOcupados,
-                                     float costoEstadiaDiario) {
+    public float calcularEstadia(int diasOcupados, float costoEstadiaDiario) {
+        return diasOcupados * costoEstadiaDiario;
+    }
 
-          System.out.println("--- [SERVICIO-TARIFA] CALCULANDO TARIFA ---");
-          System.out.println("Volumen Recibido: " + volumen);
-          System.out.println("Peso Recibido: " + peso);
-          System.out.println("Distancia (km) Recibida: " + distanciaKm);
-          System.out.println("Consumo Combustible (L/km): " + consumoCombustible);
-          System.out.println("Valor Litro: " + valorLitroCombustible);
-          System.out.println("Días Ocupados: " + diasOcupados);
-          System.out.println("Costo Estadia Diario: " + costoEstadiaDiario);
+    public float calcularTarifaTramo(float volumen,
+                                    float peso,
+                                    float distanciaKm, 
+                                    float valorLitroCombustible,
+                                    float consumoCombustible, 
+                                    int diasOcupados,
+                                    float costoEstadiaDiario) {
+
+            System.out.println("--- [SERVICIO-TARIFA] CALCULANDO TARIFA ---");
+            System.out.println("Volumen Recibido: " + volumen);
+            System.out.println("Peso Recibido: " + peso);
+            System.out.println("Distancia (km) Recibida: " + distanciaKm);
+            System.out.println("Consumo Combustible (L/km): " + consumoCombustible);
+            System.out.println("Valor Litro: " + valorLitroCombustible);
+            System.out.println("Días Ocupados: " + diasOcupados);
+            System.out.println("Costo Estadia Diario: " + costoEstadiaDiario);
           
-          float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
+            float estadia = calcularEstadia(diasOcupados, costoEstadiaDiario);
 
-        // Usamos el parámetro "distanciaKm"
         if (volumen < 20 && peso < 1000) {
             float costoTramo = ((distanciaKm * consumoCombustible * valorLitroCombustible) + estadia) * 0.2f;
             return costoTramo;
@@ -85,5 +96,4 @@ public float calcularTarifaTramo(float volumen,
             return costoTramo;
         }
     }
-
 }

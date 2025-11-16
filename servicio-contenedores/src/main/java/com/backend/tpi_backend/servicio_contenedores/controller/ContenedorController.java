@@ -8,6 +8,7 @@ import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado;
 import com.backend.tpi_backend.servicio_contenedores.service.ContenedorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,21 +70,26 @@ public class ContenedorController {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasRole('CLIENTE')") 
     @GetMapping("/{id}/estado-transporte")
     public ResponseEntity<EstadoContenedorResponse> consultarEstadoTransporte(
         @PathVariable Integer id) {
     return ResponseEntity.ok(service.consultarEstadoTransporte(id));
     }
+
+
     //Funcionalidad 5 - Listar contenedores no disponibles
+    @PreAuthorize("hasRole('OPERADOR')") 
     @GetMapping("/pendientes")
-public ResponseEntity<List<ContenedorPendienteDTO>> getPendientes(
+    public ResponseEntity<List<ContenedorPendienteDTO>> getPendientes(
         @RequestParam(required = false) Integer estadoId,
         @RequestParam(required = false) Integer clienteId,
         @RequestParam(required = false) Integer ubicacionId
-) {
-    return ResponseEntity.ok(
-        service.obtenerPendientes(estadoId, clienteId, ubicacionId)
-    );
-}
+    ) {
+        return ResponseEntity.ok(
+            service.obtenerPendientes(estadoId, clienteId, ubicacionId)
+        );
+    }
 
 }
