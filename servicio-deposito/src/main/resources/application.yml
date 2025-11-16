@@ -1,5 +1,5 @@
 server:
-  port: 8085  # Puerto del microservicio Depósito
+  port: 8085 # Puerto del microservicio Depósito
 
 spring:
   application:
@@ -15,7 +15,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: true   # ✅ Agregá esta línea
+    defer-datasource-initialization: true # ✅ Asegura que la data.sql espere a Hibernate
     show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
     properties:
@@ -25,18 +25,19 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: always # Inicializa la base de datos con data.sql
 
   h2:
     console:
       enabled: true
       path: /h2-console
+      
   security:
     oauth2:
       resourceserver:
         jwt:
+          # Debe ser localhost:8181 porque estás corriendo fuera de Docker
           issuer-uri: http://localhost:8181/realms/tpi-realm
-          # opcional (mejora velocidad)
           # jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
 
 springdoc:
@@ -49,6 +50,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-
-
+  instance:
+    # 🌟 CRÍTICO: FUERZA A EUREKA A USAR LOCALHOST EN LUGAR DE NB-PEDRO.mshome.net
+    hostname: localhost
+    # Opcional: Define explícitamente el ID de instancia para claridad
+    instance-id: ${spring.application.name}:${server.port}

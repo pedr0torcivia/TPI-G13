@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    // URL de los certificados del realm de Keycloak
-    // (la sacaste del issuer: http://localhost:8181/realms/tpi-realm)
+    // URL de los certificados del realm de Keycloak (Necesario para la validación de la firma)
     private static final String JWK_SET_URI =
             "http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs";
 
@@ -36,7 +35,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
+                // Rutas públicas (No requieren token)
                 .requestMatchers(
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
@@ -44,7 +43,7 @@ public class SecurityConfig {
                         "/h2-console/**",
                         "/actuator/**"
                 ).permitAll()
-                // Todas las demás peticiones requieren autenticación
+                // Todas las demás peticiones requieren un token válido
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
@@ -60,8 +59,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Bean explícito de JwtDecoder para que Spring Security
-     * deje de romper con "No qualifying bean of type 'JwtDecoder'".
+     * Bean explícito de JwtDecoder para inicializar la validación de tokens.
      */
     @Bean
     public JwtDecoder jwtDecoder() {
@@ -69,28 +67,30 @@ public class SecurityConfig {
     }
 
     /**
-     * LECTURA DE ROLES DESDE 'resource_access.tpi-client.roles'.
+     * Convierte el JWT en un objeto de autenticación de Spring Security.
      */
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> new JwtAuthenticationToken(jwt, extractAuthorities(jwt));
     }
 
+    /**
+     * LECTURA DE ROLES CORREGIDA: Busca los roles en 'realm_access.roles',
+     * que es donde Keycloak los está colocando.
+     */
     @SuppressWarnings("unchecked")
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        
+        // 1. Accede al claim 'realm_access'
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
 
-        if (resourceAccess == null) {
+        if (realmAccess == null || !realmAccess.containsKey("roles")) {
+            // Si no hay realm_access o no hay roles, retorna lista vacía
             return List.of();
         }
 
-        Map<String, Object> tpiClient = (Map<String, Object>) resourceAccess.get("tpi-client");
+        Collection<String> roles = (Collection<String>) realmAccess.get("roles");
 
-        if (tpiClient == null || !tpiClient.containsKey("roles")) {
-            return List.of();
-        }
-
-        Collection<String> roles = (Collection<String>) tpiClient.get("roles");
-
+        // 2. Mapea los roles (ej: "OPERADOR") al formato ROLE_OPERADOR
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                 .collect(Collectors.toList());

@@ -2,7 +2,7 @@
 # CONFIGURACIÓN DEL SERVICIO DE TRANSPORTE
 # =========================================================
 server:
-  port: 8082 # Puerto de este microservicio (ajusta si es necesario)
+  port: 8082 
 
 spring:
   application:
@@ -43,17 +43,23 @@ spring:
             readTimeout: 5000
 
   # ----------------------------------------------------
-  # 4. SEGURIDAD (Keycloak)
+  # 2. CONFIGURACIÓN DE OSRM (SOLUCIÓN DEL ERROR 500)
+  # ----------------------------------------------------
+  osrm:
+    # 🌟 CRÍTICO: Apunta a localhost y al puerto 5001, donde está corriendo el contenedor OSRM.
+    url: http://localhost:5001 
+
+  # ----------------------------------------------------
+  # 3. SEGURIDAD (Keycloak)
   # ----------------------------------------------------
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8181/realms/tpi-realm
-          # si tu Keycloak está en otro puerto o realm, ajustalo acá
 
 # ----------------------------------------------------
-# 3. EUREKA Y REGISTRO
+# 4. EUREKA Y REGISTRO
 # ----------------------------------------------------
 eureka:
   client:

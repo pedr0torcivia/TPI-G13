@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "servicio-deposito") 
 public interface UbicacionClient {
 
-    // Ajusta "/ubicaciones/{id}" si el endpoint es diferente
-    @GetMapping("api/ubicaciones/{id}") 
+    // ✅ CORRECCIÓN: Se añade la barra inicial para asegurar que el path sea /api/ubicaciones/{id}
+    @GetMapping("/api/ubicaciones/{id}") 
     UbicacionDTO obtenerPorId(@PathVariable Integer id);
 }

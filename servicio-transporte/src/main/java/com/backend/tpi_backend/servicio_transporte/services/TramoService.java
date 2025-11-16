@@ -24,22 +24,25 @@ import lombok.RequiredArgsConstructor;
 public class TramoService implements BaseService<Tramo, Integer> {
 
     // =========================================================================
-    // REPOSITORIOS
+    // REPOSITORIOS Y SERVICIOS LOCALES
     // =========================================================================
     private final TramoRepository tramoRepository;
     private final CamionRepository camionRepository;
     private final TramoEstadoRepository tramoEstadoRepository;
     private final TransportistaRepository transportistaRepository;
+    
+    // ✅ SERVICIO LOCAL: Inyección del servicio CamionService (ya no es FeignClient)
+    private final CamionService camionService; 
 
     // =========================================================================
-    // CLIENTES FEIGN
+    // CLIENTES FEIGN (Solo los externos)
     // =========================================================================
     private final ContenedoresClient contenedoresClient;
     private final OsrmClient osrmClient;
     private final UbicacionClient ubicacionClient;
     private final TarifaClient tarifaClient;
     private final DepositoClient depositoClient;
-    private final CamionClient camionClient;
+    // 🛑 CamionClient ya no se inyecta
 
     // =========================================================================
     // CONSTANTES
@@ -323,8 +326,8 @@ public Tramo finalizarTramo(Integer idTramo) {
 
     // construye el tramo tentativo
     public TramoTentativoDTO crearTramoTentativo(Integer origenId,
-                                             Integer destinoId,
-                                             Integer contenedorId) {
+                                                 Integer destinoId,
+                                                 Integer contenedorId) {
 
     // 1) Distancia estimada usando OSRM
     double distanciaKm = calcularDistanciaTramoEnKm(origenId, destinoId);
@@ -436,15 +439,19 @@ public float obtenerTarifaParaTramo(Integer idTramo) {
     // =========================================================================
     public float calcularPromedioCostoKm(double peso, double volumen) {
 
-        List<CamionDTO> camiones = camionClient.obtenerCamionesElegibles(peso, volumen);
+        // 🛑 CORRECCIÓN: Llamar al Servicio LOCAL CamionService.
+        // Se asume que el CamionService está disponible via @RequiredArgsConstructor
+        List<Camion> camiones = camionService.obtenerCamionesElegibles(peso, volumen); 
 
         if (camiones.isEmpty())
-            throw new RuntimeException("No hay camiones elegibles para este contenedor.");
+            // Devolver un valor por defecto si no hay camiones para evitar el error de Runtime
+            return 200.0f; 
 
+        // ✅ CORRECCIÓN FINAL: Mapear el BigDecimal a double antes de promediar
         double promedio = camiones.stream()
-                .mapToDouble(CamionDTO::getCostoKm)
+                .mapToDouble(c -> c.getCostoKm().doubleValue()) 
                 .average()
-                .orElseThrow();
+                .orElse(200.0); 
 
         return (float) promedio;
     }

@@ -55,6 +55,7 @@ public class RutaController {
     }
 
     // generar ruta tentativa
+    @PreAuthorize("hasRole('OPERADOR')")
     @GetMapping("/ruta-tentativa")
     public ResponseEntity<RutaTentativaResponse> generarRutaTentativa(
             @RequestParam Integer origenId,
