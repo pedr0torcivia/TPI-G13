@@ -9,10 +9,10 @@ import java.util.List;
 
 @Repository
 public interface SeguimientoContenedorRepository extends JpaRepository<SeguimientoContenedor, Integer> {
-
-    // Historial de un contenedor, del más nuevo al más viejo
-    List<SeguimientoContenedor> findByContenedor_IdentificacionOrderByFechaDesc(Integer contenedorId);
-
-    // Último seguimiento de un contenedor (más reciente)
+    
+    // Método útil para buscar el historial de un contenedor
+    List<SeguimientoContenedor> findByContenedor_IdentificacionOrderByFechaHoraAsc(Integer contenedorId);
     SeguimientoContenedor findTopByContenedorOrderByFechaDesc(Contenedor contenedor);
+
+
 }
