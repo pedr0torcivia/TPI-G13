@@ -35,7 +35,7 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt
-                    // 🚨 CORRECCIÓN: Llamamos a la implementación del conversor, que ya no es un @Bean.
+                    // Llama al método que ya no es un @Bean
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             );
@@ -46,15 +46,14 @@ public class SecurityConfig {
     }
 
     /**
-     * CORRECCIÓN 1: Se remueve @Bean. Esto resuelve el conflicto con mvcConversionService.
-     * Implementación para leer roles de 'resource_access.tpi-client.roles'.
+     * CORRECCIÓN DE BEAN Y LECTURA DE ROLES.
+     * Se remueve @Bean y se lee de 'resource_access.tpi-client.roles'.
      */
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> new JwtAuthenticationToken(jwt, extractAuthorities(jwt));
     }
 
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        // CORRECCIÓN 2: Leemos de resource_access.tpi-client.roles
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
 
         if (resourceAccess == null) {

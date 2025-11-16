@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface SeguimientoContenedorRepository extends JpaRepository<SeguimientoContenedor, Integer> {
     
-    // Método útil para buscar el historial de un contenedor
-    List<SeguimientoContenedor> findByContenedor_IdentificacionOrderByFechaHoraAsc(Integer contenedorId);
+    // MÉTODO CORREGIDO: Se cambia a OrderByFechaAsc para coincidir con la Entidad.
+    List<SeguimientoContenedor> findByContenedor_IdentificacionOrderByFechaAsc(Integer contenedorId);
     SeguimientoContenedor findTopByContenedorOrderByFechaDesc(Contenedor contenedor);
 
 

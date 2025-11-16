@@ -35,7 +35,7 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt
-                    // 🚨 CORRECCIÓN: Usamos el conversor que lee los roles del cliente 'tpi-client'.
+                    // Llama al método que ya no es un @Bean
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             );
@@ -46,10 +46,10 @@ public class SecurityConfig {
     }
 
     /**
-     * CORRECCIÓN: Implementación para leer roles de 'resource_access.tpi-client.roles'.
+     * CORRECCIÓN DE BEAN Y LECTURA DE ROLES.
+     * Se remueve @Bean y se lee de 'resource_access.tpi-client.roles'.
      */
-    @Bean
-    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    private Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> new JwtAuthenticationToken(jwt, extractAuthorities(jwt));
     }
 
@@ -60,7 +60,6 @@ public class SecurityConfig {
             return List.of();
         }
 
-        // Obtiene el mapa del cliente específico 'tpi-client'
         Map<String, Object> tpiClient = (Map<String, Object>) resourceAccess.get("tpi-client");
 
         if (tpiClient == null || !tpiClient.containsKey("roles")) {
@@ -69,7 +68,6 @@ public class SecurityConfig {
 
         Collection<String> roles = (Collection<String>) tpiClient.get("roles");
 
-        // Convierte los roles en el formato Spring Security (ROLE_nombre)
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                 .collect(Collectors.toList());

@@ -37,10 +37,10 @@ public class Tramo {
     @JoinColumn(name = "estado_id", nullable = false)
     private TramoEstado estado;
 
-    @Column(name = "costo_aproximado", precision = 10, scale = 2)
+    @Column(name = "costo_aproximado", precision = 10)
     private BigDecimal costoAproximado;
 
-    @Column(name = "costo_real", precision = 10, scale = 2)
+    @Column(name = "costo_real", precision = 10)
     private BigDecimal costoReal;
 
     @Column(name = "fecha_hora_inicio")

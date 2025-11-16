@@ -138,7 +138,7 @@ public class ContenedorService {
 
         // Borrar todo el historial del contenedor
         List<SeguimientoContenedor> historial =
-                seguimientoRepository.findByContenedor_IdentificacionOrderByFechaHoraAsc(id);
+                seguimientoRepository.findByContenedor_IdentificacionOrderByFechaAsc(id);
         seguimientoRepository.deleteAll(historial);
 
         contenedorRepository.deleteById(id);
@@ -150,7 +150,7 @@ public class ContenedorService {
         Contenedor contenedor = this.findById(contenedorId);
 
         List<SeguimientoContenedor> historial =
-                seguimientoRepository.findByContenedor_IdentificacionOrderByFechaHoraAsc(contenedorId);
+                seguimientoRepository.findByContenedor_IdentificacionOrderByFechaAsc(contenedorId);
 
         EstadoContenedorResponse dto = new EstadoContenedorResponse();
         dto.setContenedorId(contenedorId);

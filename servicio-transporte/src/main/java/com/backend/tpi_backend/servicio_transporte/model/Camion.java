@@ -18,17 +18,17 @@ public class Camion {
     @JoinColumn(name = "id_transportista")
     private Transportista transportista;
 
-    @Column(name = "capacidad_peso_kg", precision = 12, scale = 3)
+    @Column(name = "capacidad_peso_kg", precision = 12)
     private double capacidadPesoKg;
 
-    @Column(name = "capacidad_volumen_m3", precision = 12, scale = 3)
+    @Column(name = "capacidad_volumen_m3", precision = 12)
     private double capacidadVolumenM3;
 
     private Boolean disponibilidad;
 
-    @Column(name = "costo_km", precision = 10, scale = 2)
+    @Column(name = "costo_km", precision = 10)
     private BigDecimal costoKm;
 
-    @Column(name = "consumo_combustible_km", precision = 10, scale = 3)
+    @Column(name = "consumo_combustible_km", precision = 10)
     private BigDecimal consumoCombustibleKm;
 }

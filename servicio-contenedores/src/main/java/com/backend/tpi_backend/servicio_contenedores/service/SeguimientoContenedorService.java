@@ -14,6 +14,7 @@ public class SeguimientoContenedorService {
 
     // Busca todos los seguimientos de un contenedor específico
     public List<SeguimientoContenedor> findAllByContenedorId(Integer contenedorId) {
-        return repository.findByContenedor_IdentificacionOrderByFechaHoraAsc(contenedorId);
+        // Se corrige la llamada al método
+        return repository.findByContenedor_IdentificacionOrderByFechaAsc(contenedorId);
     }
 }
