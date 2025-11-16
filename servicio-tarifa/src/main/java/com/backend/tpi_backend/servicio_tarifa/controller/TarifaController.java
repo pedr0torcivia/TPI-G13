@@ -75,19 +75,21 @@ public class TarifaController {
 
     
     @PostMapping("/calcular")
-    @PreAuthorize("isAuthenticated()") // Lo llama servicio-transporte, debe estar autenticado
-    public ResponseEntity<Float> calcularTarifa(
-            @RequestBody CalculoTarifaRequest request) {
-        
-        float tarifa = tarifaService.calcularTarifaTramo(
-                request.getVolumen(),
-                request.getPeso(),
-                request.getDistanciaKm(),
-                request.getValorLitroCombustible(),
-                request.getConsumoCombustible(),
-                request.getDiasOcupados(),
-                request.getCostoEstadiaDiario()
-        );
-        return ResponseEntity.ok(tarifa);
-    }
+@PreAuthorize("isAuthenticated()") // Lo llama servicio-transporte, debe estar autenticado
+public ResponseEntity<Float> calcularTarifa(@RequestBody CalculoTarifaRequest request) {
+
+    float tarifa = tarifaService.calcularTarifaTramo(
+            request.getVolumen(),
+            request.getPeso(),
+            request.getDistanciaKm(),
+            request.getValorLitroCombustible(),
+            request.getConsumoCombustible(),
+            request.getCostoKmCamion(),      
+            request.getDiasOcupados(),
+            request.getCostoEstadiaDiario(),
+            request.getCargoGestion()       
+    );
+
+    return ResponseEntity.ok(tarifa);
+}
 }
