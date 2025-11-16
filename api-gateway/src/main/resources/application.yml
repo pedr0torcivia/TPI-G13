@@ -16,16 +16,6 @@ spring:
       # La propagación del token (si es necesaria) se maneja a menudo internamente 
       # por los clientes Feign o por el filtro de seguridad implícito.
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # URI base del Realm (correcta)
-          issuer-uri: http://localhost:8181/realms/tpi-realm 
-          
-          # Claves explícitas (solucionó el 401)
-          jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
-          
 eureka:
   client:
     serviceUrl:

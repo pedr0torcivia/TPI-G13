@@ -1,74 +1,77 @@
 server:
-  port: 8082
+  port: 8080
 
 spring:
-  # SOLUCIÓN AL ERROR: Permite sobrescribir definiciones de beans duplicadas (e.g., Feign Clients)
-  main:
-    allow-bean-definition-overriding: true
-    
   application:
-    name: servicio-transporte
+    name: api-gateway
 
-  # ==========================
-  # BASE DE DATOS COMPARTIDA (H2 en archivo)
-  # ==========================
-  datasource:
-    url: jdbc:h2:file:../h2/shared_db;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  cloud:
+    gateway:
+      # Sigue habilitado el locator por si querés usar rutas automáticas tipo
+      # http://localhost:8080/servicio-contenedores/**, pero NO es obligatorio usarlo.
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 
-  # ==========================
-  # CONFIGURACIÓN JPA (CORREGIDA)
-  # ==========================
-  jpa:
-    hibernate:
-      ddl-auto: update 
-    show-sql: true 
-    database-platform: org.hibernate.dialect.H2Dialect
-    properties:
-      hibernate:
-        format_sql: true
-        
-    defer-datasource-initialization: true
+      routes:
+        # ==============================
+        #  🟦 SERVICIO CONTENEDORES
+        #  Exponer:
+        #    - /api/solicitudes/**
+        #    - /api/contenedores/**
+        # ==============================
+        - id: servicio-contenedores
+          uri: lb://servicio-contenedores
+          predicates:
+            - Path=/api/solicitudes/**,/api/contenedores/**
 
-  # ==========================
-  # FORZAR EJECUCIÓN DE data.sql
-  # ==========================
-  sql:
-    init:
-      mode: always # Ejecuta siempre data.sql al iniciar
+        # ==============================
+        #  🟩 SERVICIO TRANSPORTE
+        #  Exponer:
+        #    - /api/rutas/**
+        #    - /api/tramos/**
+        #    - /api/camiones/**   (CRUD camiones)
+        # ==============================
+        - id: servicio-transporte
+          uri: lb://servicio-transporte
+          predicates:
+            - Path=/api/rutas/**,/api/tramos/**,/api/camiones/**
 
-  # ==========================
-  # H2 CONSOLE
-  # ==========================
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+        # ==============================
+        #  🟨 SERVICIO TARIFA
+        #  Exponer:
+        #    - /api/tarifas/**
+        # ==============================
+        - id: servicio-tarifa
+          uri: lb://servicio-tarifa
+          predicates:
+            - Path=/api/tarifas/**
+
+        # ==============================
+        #  🟧 SERVICIO DEPOSITO
+        #  Exponer:
+        #    - /api/depositos/**
+        # ==============================
+        - id: servicio-deposito
+          uri: lb://servicio-deposito
+          predicates:
+            - Path=/api/depositos/**
+
   security:
     oauth2:
       resourceserver:
         jwt:
+          # Realm de Keycloak
           issuer-uri: http://localhost:8181/realms/tpi-realm
+          jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
 
-# ==========================
-# SWAGGER / OPENAPI
-# ==========================
-springdoc:
-  api-docs:
-    path: /api-docs 
-  swagger-ui:
-    path: /swagger-ui.html
-
-# ==========================
-# EUREKA CLIENT CONFIG
-# ==========================
 eureka:
   client:
-    service-url:
+    serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
-
-osrm:
-  base-url: http://localhost:5001
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: INFO
