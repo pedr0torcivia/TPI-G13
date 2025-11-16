@@ -51,4 +51,3 @@ VALUES (1, 1, 10, 20, 1, 1);
 MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id)
 KEY(id)
 VALUES (2, 1, 20, 30, 2, 1);
-

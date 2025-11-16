@@ -1,77 +1,64 @@
+# =========================================================
+# CONFIGURACIÓN DEL SERVICIO DE TRANSPORTE
+# =========================================================
 server:
-  port: 8080
+  port: 8082 # Puerto de este microservicio (ajusta si es necesario)
 
 spring:
   application:
-    name: api-gateway
+    name: servicio-transporte
+  
+  # ----------------------------------------------------
+  # 1. CONFIGURACIÓN DE BASE DE DATOS (H2)
+  # ----------------------------------------------------
+  datasource:
+    url: jdbc:h2:mem:tpi-transporte;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: sa
 
+  jpa:
+    defer-datasource-initialization: true 
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+  main:
+    allow-bean-definition-overriding: true
+  
   cloud:
-    gateway:
-      # Sigue habilitado el locator por si querés usar rutas automáticas tipo
-      # http://localhost:8080/servicio-contenedores/**, pero NO es obligatorio usarlo.
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
 
-      routes:
-        # ==============================
-        #  🟦 SERVICIO CONTENEDORES
-        #  Exponer:
-        #    - /api/solicitudes/**
-        #    - /api/contenedores/**
-        # ==============================
-        - id: servicio-contenedores
-          uri: lb://servicio-contenedores
-          predicates:
-            - Path=/api/solicitudes/**,/api/contenedores/**
-
-        # ==============================
-        #  🟩 SERVICIO TRANSPORTE
-        #  Exponer:
-        #    - /api/rutas/**
-        #    - /api/tramos/**
-        #    - /api/camiones/**   (CRUD camiones)
-        # ==============================
-        - id: servicio-transporte
-          uri: lb://servicio-transporte
-          predicates:
-            - Path=/api/rutas/**,/api/tramos/**,/api/camiones/**
-
-        # ==============================
-        #  🟨 SERVICIO TARIFA
-        #  Exponer:
-        #    - /api/tarifas/**
-        # ==============================
-        - id: servicio-tarifa
-          uri: lb://servicio-tarifa
-          predicates:
-            - Path=/api/tarifas/**
-
-        # ==============================
-        #  🟧 SERVICIO DEPOSITO
-        #  Exponer:
-        #    - /api/depositos/**
-        # ==============================
-        - id: servicio-deposito
-          uri: lb://servicio-deposito
-          predicates:
-            - Path=/api/depositos/**
-
+  # ----------------------------------------------------
+  # 4. SEGURIDAD (Keycloak)
+  # ----------------------------------------------------
   security:
     oauth2:
       resourceserver:
         jwt:
-          # Realm de Keycloak
           issuer-uri: http://localhost:8181/realms/tpi-realm
-          jwk-set-uri: http://localhost:8181/realms/tpi-realm/protocol/openid-connect/certs
+          # si tu Keycloak está en otro puerto o realm, ajustalo acá
 
+# ----------------------------------------------------
+# 3. EUREKA Y REGISTRO
+# ----------------------------------------------------
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: INFO
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
