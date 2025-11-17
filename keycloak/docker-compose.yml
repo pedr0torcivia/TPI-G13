@@ -3,7 +3,7 @@ version: "3.8"
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.3
-    container_name: tpi-keycloak
+    container_name: tpi-keycloak-new
     command:
       - start-dev
     environment:
@@ -13,7 +13,9 @@ services:
     ports:
       - "8181:8080"
     volumes:
-      # Carpeta local para los datos de Keycloak (NUEVA)
-      - ./data:/opt/keycloak/data
+      # Usamos el volumen EXISTENTE que ya contiene tu realm viejo
+      - keycloak_data:/opt/keycloak/data
 
-# NO usamos volúmenes named para evitar arrastrar mierda vieja
+volumes:
+  keycloak_data:
+    external: true

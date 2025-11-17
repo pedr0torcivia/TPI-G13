@@ -1,6 +1,7 @@
 package com.backend.tpi_backend.servicio_contenedores.service;
 
 import com.backend.tpi_backend.servicio_contenedores.dto.SolicitudRequestDTO;
+import com.backend.tpi_backend.servicio_contenedores.dto.SolicitudResponseDTO;
 import com.backend.tpi_backend.servicio_contenedores.model.Cliente;
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
 import com.backend.tpi_backend.servicio_contenedores.model.ContenedorEstado;
@@ -24,7 +25,7 @@ public class SolicitudService {
 
     // IDs de estado fijos
     private static final int ID_SOLICITUD_PROGRAMADA = 2;
-    private static final int ID_CONTENEDOR_ASIGNADO = 2;
+    private static final int ID_CONTENEDOR_ASIGNADO  = 2;
     private static final int ID_CONTENEDOR_DISPONIBLE = 1;
 
     private final SolicitudRepository solicitudRepository;
@@ -33,6 +34,51 @@ public class SolicitudService {
     private final SolicitudEstadoService solicitudEstadoService;
     private final ContenedorEstadoService contenedorEstadoService;
     private final SeguimientoContenedorRepository seguimientoRepository;
+
+    // ==========================
+    //  MAPEOS A DTO DE SALIDA
+    // ==========================
+    private SolicitudResponseDTO toResponseDTO(Solicitud s) {
+        SolicitudResponseDTO dto = new SolicitudResponseDTO();
+
+        dto.setNumero(s.getNumero());
+        dto.setOrigenId(s.getOrigenId());
+        dto.setDestinoId(s.getDestinoId());
+        dto.setTarifaId(s.getTarifaId());
+        dto.setRutaId(s.getRutaId());
+
+        if (s.getEstado() != null) {
+            dto.setEstadoId(s.getEstado().getId());
+        }
+        if (s.getCliente() != null) {
+            dto.setClienteId(s.getCliente().getId());
+        }
+        if (s.getContenedor() != null) {
+            dto.setContenedorId(s.getContenedor().getIdentificacion());
+        }
+
+        return dto;
+    }
+
+    public List<SolicitudResponseDTO> findAllDto(String nombreEstado) {
+        List<Solicitud> solicitudes;
+        if (nombreEstado != null && !nombreEstado.isEmpty()) {
+            solicitudes = solicitudRepository.findByEstado_Nombre(nombreEstado);
+        } else {
+            solicitudes = solicitudRepository.findAll();
+        }
+        return solicitudes.stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public SolicitudResponseDTO findDtoById(Integer id) {
+        return toResponseDTO(findById(id));
+    }
+
+    // ==========================
+    //   MÉTODOS SOBRE ENTIDAD
+    // ==========================
 
     public List<Solicitud> findAll() {
         return solicitudRepository.findAll();
@@ -145,19 +191,23 @@ public class SolicitudService {
 
         solicitudRepository.deleteById(id);
     }
-    //metodo para el paso 4-Asingar ruta con sus tramos a solicitud
+
+    // ==========================
+    // PASO 4 - ASIGNAR RUTA
+    // ==========================
     @Transactional
-    public Solicitud asignarRuta(Integer solicitudId, Integer rutaId) {
+    public SolicitudResponseDTO asignarRuta(Integer solicitudId, Integer rutaId) {
 
         Solicitud solicitud = findById(solicitudId);
 
-        // estado "RUTA_ASIGNADA" (debes ver su ID real)
+        // ID 3 = "ruta asignada" (ajusta si tu tabla tiene otro id)
         SolicitudEstado estadoRutaAsignada = solicitudEstadoService.findById(3);
 
         solicitud.setRutaId(rutaId);
         solicitud.setEstado(estadoRutaAsignada);
 
-        return solicitudRepository.save(solicitud);
+        Solicitud guardada = solicitudRepository.save(solicitud);
+        return toResponseDTO(guardada);
     }
 
 }

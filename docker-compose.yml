@@ -1,0 +1,160 @@
+services:
+  # ==========================
+  # EUREKA SERVER
+  # ==========================
+  eureka:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka
+    ports:
+      - "18761:8761"   # HOST:CONTAINER
+    networks:
+      - tpi-net
+
+  # ==========================
+  # KEYCLOAK
+  # ==========================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: tpi-keycloak
+    command: start-dev
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin123
+    ports:
+      - "8181:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - tpi-net
+
+  # ==========================
+  # OSRM
+  # ==========================
+  osrm:
+    image: osrm/osrm-backend
+    container_name: osrm
+    command: osrm-routed /data/argentina-251112.osrm
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./osrm-data:/data
+    networks:
+      - tpi-net
+
+  # ==========================
+  # API GATEWAY
+  # ==========================
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    depends_on:
+      - eureka
+      - keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      # Que apunte al EUREKA dentro de la red de Docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+
+      # Que apunte a KEYCLOAK dentro de la red de Docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/tpi-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
+    networks:
+      - tpi-net
+
+  # ==========================
+  # SERVICIO CONTENEDORES
+  # ==========================
+  servicio-contenedores:
+    build:
+      context: ./servicio-contenedores
+      dockerfile: Dockerfile
+    container_name: servicio-contenedores
+    depends_on:
+      - eureka
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/tpi-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
+    volumes:
+      - ./h2:/h2
+    networks:
+      - tpi-net
+
+  # ==========================
+  # SERVICIO TRANSPORTE
+  # ==========================
+  servicio-transporte:
+    build:
+      context: ./servicio-transporte
+      dockerfile: Dockerfile
+    container_name: servicio-transporte
+    depends_on:
+      - eureka
+      - osrm
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+      # OSRM dentro de la red de Docker (el contenedor osrm expone 5000 interno)
+      - OSRM_BASE_URL=http://osrm:5000
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/tpi-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
+    volumes:
+      - ./h2:/h2
+    networks:
+      - tpi-net
+
+  # ==========================
+  # SERVICIO TARIFA
+  # ==========================
+  servicio-tarifa:
+    build:
+      context: ./servicio-tarifa
+      dockerfile: Dockerfile
+    container_name: servicio-tarifa
+    depends_on:
+      - eureka
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/tpi-realm
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
+    volumes:
+      - ./h2:/h2
+    networks:
+      - tpi-net
+
+  # ==========================
+  # SERVICIO DEPOSITO
+  # ==========================
+  servicio-deposito:
+    build:
+      context: ./servicio-deposito
+      dockerfile: Dockerfile
+    container_name: servicio-deposito
+    depends_on:
+      - eureka
+    ports:
+      - "8085:8085"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    volumes:
+      - ./h2:/h2
+    networks:
+      - tpi-net
+
+# Volumen para datos de Keycloak
+volumes:
+  keycloak_data:
+
+# Red interna de Docker para que se vean por nombre
+networks:
+  tpi-net:
