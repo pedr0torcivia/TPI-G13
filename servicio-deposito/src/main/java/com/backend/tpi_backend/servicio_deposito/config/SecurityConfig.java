@@ -24,15 +24,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+        http.securityMatcher("/swagger-ui/*", "/v3/api-docs/*");
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/h2-console/**", "/actuator/**").permitAll()
-                // Todas las demás peticiones requieren autenticación y luego se validan con @PreAuthorize
-                .anyRequest().authenticated()
-            )
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            // 🔓 Rutas públicas (Swagger y H2)
+            .requestMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs",
+                "/v3/api-docs/**",
+                "/v3/api-docs/swagger-config",
+                "/h2-console/**",
+                "/actuator/**"
+            ).permitAll()
+
+            // 🔐 Todo lo demás requiere JWT
+            .anyRequest().authenticated()
+        )
             .oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt
                     // Llama al método que ya no es un @Bean
@@ -49,7 +58,7 @@ public class SecurityConfig {
      * CORRECCIÓN DE BEAN Y LECTURA DE ROLES.
      * Se remueve @Bean y se lee de 'resource_access.tpi-client.roles'.
      */
-    private Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> new JwtAuthenticationToken(jwt, extractAuthorities(jwt));
     }
 
