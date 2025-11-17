@@ -19,9 +19,7 @@ public class SolicitudController {
 
     private final SolicitudService service;
 
-    // ============================
-    //          GET ALL
-    // ============================
+
     @GetMapping
     public ResponseEntity<List<Solicitud>> findAll(@RequestParam(required = false) String estado) {
         List<Solicitud> solicitudes;
@@ -33,27 +31,32 @@ public class SolicitudController {
         return ResponseEntity.ok(solicitudes);
     }
 
-    // ============================
-    //          GET BY ID
-    // ============================
+
     @GetMapping("/{id}")
     public ResponseEntity<Solicitud> findById(@PathVariable Integer id) {
-        return ResponseEntity.ok(service.findById(id));
+        // ✅ Manejamos la excepción lanzada por el Service si la Solicitud no existe
+        try {
+            Solicitud solicitud = service.findById(id);
+            return ResponseEntity.ok(solicitud);
+        } catch (RuntimeException e) {
+            // Devuelve 404 Not Found
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // ============================
-    //   GET CONTENEDOR ID POR SOLICITUD
-    // ============================
+
     @GetMapping("/{id}/contenedorId")
     public ResponseEntity<Integer> getContenedorIdBySolicitudId(@PathVariable Integer id) {
-        return ResponseEntity.ok(service.findContenedorIdBySolicitudId(id));
+        // Manejamos la excepción si la Solicitud no existe o no tiene contenedor
+        try {
+            return ResponseEntity.ok(service.findContenedorIdBySolicitudId(id));
+        } catch (RuntimeException e) {
+             return ResponseEntity.notFound().build();
+        }
     }
 
-    // ============================
-    //           CREATE
-    // ============================
     @PostMapping
-    @PreAuthorize("hasRole('CLIENTE')")  // Solo CLIENTE puede crear solicitudes
+    @PreAuthorize("hasRole('CLIENTE')") // Solo CLIENTE puede crear solicitudes
     public ResponseEntity<Solicitud> save(
             @RequestBody SolicitudRequestDTO solicitudDTO,
             @AuthenticationPrincipal Jwt jwt) {
@@ -62,11 +65,9 @@ public class SolicitudController {
         return ResponseEntity.status(201).body(guardada);
     }
 
-    // ============================
-    //           UPDATE
-    // ============================
+
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('OPERADOR')")  // Solo OPERADOR puede modificar solicitudes
+    @PreAuthorize("hasRole('OPERADOR')") // Solo OPERADOR puede modificar solicitudes
     public ResponseEntity<Solicitud> update(
             @PathVariable Integer id,
             @RequestBody Solicitud solicitud) {
@@ -74,11 +75,9 @@ public class SolicitudController {
         return ResponseEntity.ok(service.update(id, solicitud));
     }
 
-    // ============================
-    //           DELETE
-    // ============================
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('OPERADOR')")  // Solo OPERADOR puede eliminar solicitudes
+    @PreAuthorize("hasRole('OPERADOR')") // Solo OPERADOR puede eliminar solicitudes
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();

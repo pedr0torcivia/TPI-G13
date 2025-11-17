@@ -34,6 +34,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        
+        <!-- ✅ CORRECCIÓN CRÍTICA: Jackson para manejar las relaciones LAZY de Hibernate -->
+        <dependency> 
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5-jakarta</artifactId>
+        </dependency>
 
         <!-- Base de datos H2 -->
         <dependency>
@@ -62,13 +68,7 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!--Keycloak-->
+        <!-- Keycloak/Seguridad -->
         <dependency> 
             <groupId>org.springframework.boot</groupId> 
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId> 
@@ -78,6 +78,12 @@
             <artifactId>spring-security-oauth2-jose</artifactId> 
         </dependency>
 
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <!-- Spring Cloud BOM (obligatorio para Eureka en Boot 3.x) -->
@@ -113,8 +119,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

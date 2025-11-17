@@ -4,11 +4,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "contenedores")
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+// Ignorar detalles internos de Hibernate
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Contenedor {
 
     @Id
@@ -21,13 +27,14 @@ public class Contenedor {
     @Column(name = "volumen_m3")
     private double volumenM3;
 
-    // Relación: Muchos contenedores tienen Un estado
+    // Muchos contenedores tienen un estado
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_estado", nullable = false)
     private ContenedorEstado estado;
 
-    // Relación: Muchos contenedores pertenecen a Un cliente
+    // Muchos contenedores pertenecen a un cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnore // ⬅⬅⬅ EVITA problemas al serializar (ciclos / proxies)
     private Cliente cliente;
 }

@@ -31,7 +31,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
     private final TramoEstadoRepository tramoEstadoRepository;
     private final TransportistaRepository transportistaRepository;
     
-    // ✅ SERVICIO LOCAL: Inyección del servicio CamionService (ya no es FeignClient)
+    // ✅ SERVICIO LOCAL: Inyección del servicio CamionService
     private final CamionService camionService; 
 
     // =========================================================================
@@ -42,7 +42,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
     private final UbicacionClient ubicacionClient;
     private final TarifaClient tarifaClient;
     private final DepositoClient depositoClient;
-    // 🛑 CamionClient ya no se inyecta
+    // private final CamionClient camionClient; // <-- ELIMINADO
 
     // =========================================================================
     // CONSTANTES
@@ -180,7 +180,7 @@ public class TramoService implements BaseService<Tramo, Integer> {
 public Tramo finalizarTramo(Integer idTramo) {
 
     Tramo tramo = tramoRepository.findById(idTramo)
-            .orElseThrow(() -> new RuntimeException("Tramo no encontrado con id " + idTramo));
+            .orElseThrow(() -> new RuntimeException("Tramo no encontrado"));
 
     TramoEstado estadoFinalizado = tramoEstadoRepository.findByNombre(ESTADO_FINALIZADO)
             .orElseThrow(() -> new RuntimeException("Estado 'finalizado' no encontrado"));
@@ -436,22 +436,22 @@ public float obtenerTarifaParaTramo(Integer idTramo) {
     }
     // =========================================================================
     // REQ. 8.2 — COSTO PROMEDIO POR KM (camiones elegibles)
+    // LÓGICA DE NEGOCIO: Lanza excepción si no hay camiones elegibles.
     // =========================================================================
     public float calcularPromedioCostoKm(double peso, double volumen) {
 
-        // 🛑 CORRECCIÓN: Llamar al Servicio LOCAL CamionService.
-        // Se asume que el CamionService está disponible via @RequiredArgsConstructor
+        // Llamar al Servicio LOCAL CamionService.
         List<Camion> camiones = camionService.obtenerCamionesElegibles(peso, volumen); 
 
         if (camiones.isEmpty())
-            // Devolver un valor por defecto si no hay camiones para evitar el error de Runtime
-            return 200.0f; 
+            // 🛑 Lógica de Negocio: No hay camiones para esta especificación, lanzamos RuntimeException
+            throw new RuntimeException("No hay camiones elegibles para este contenedor, peso o volumen excedido."); 
 
-        // ✅ CORRECCIÓN FINAL: Mapear el BigDecimal a double antes de promediar
+        // Mapear el BigDecimal a double antes de promediar
         double promedio = camiones.stream()
                 .mapToDouble(c -> c.getCostoKm().doubleValue()) 
                 .average()
-                .orElse(200.0); 
+                .orElseThrow(() -> new RuntimeException("Error interno al calcular promedio de costo por km.")); 
 
         return (float) promedio;
     }

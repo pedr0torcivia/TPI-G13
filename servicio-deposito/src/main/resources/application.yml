@@ -51,7 +51,7 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
   instance:
-    # 🌟 CRÍTICO: FUERZA A EUREKA A USAR LOCALHOST EN LUGAR DE NB-PEDRO.mshome.net
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
     hostname: localhost
-    # Opcional: Define explícitamente el ID de instancia para claridad
     instance-id: ${spring.application.name}:${server.port}

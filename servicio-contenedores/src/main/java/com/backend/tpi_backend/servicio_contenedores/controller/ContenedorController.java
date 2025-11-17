@@ -1,6 +1,6 @@
 package com.backend.tpi_backend.servicio_contenedores.controller;
 
-import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorDTO; // <-- IMPORTAR DTO
+import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorDTO;
 import com.backend.tpi_backend.servicio_contenedores.dto.ContenedorPendienteDTO;
 import com.backend.tpi_backend.servicio_contenedores.dto.EstadoContenedorResponse;
 import com.backend.tpi_backend.servicio_contenedores.model.Contenedor;
@@ -20,37 +20,41 @@ public class ContenedorController {
 
     private final ContenedorService service;
 
-    // --- MODIFICADO: Usa service.findAllDTO() ---
+    // Listar todos los contenedores (DTO liviano)
     @GetMapping
     public ResponseEntity<List<ContenedorDTO>> findAll() {
         return ResponseEntity.ok(service.findAllDTO());
     }
 
-    // --- MODIFICADO: Usa service.findDTOById() ---
-    // Este es el endpoint que estaba fallando
+    // Obtener contenedor por ID (lo usa transporte via Feign)
     @GetMapping("/{id}")
-    public ResponseEntity<ContenedorDTO> findById(@PathVariable Integer id) {
-        return ResponseEntity.ok(service.findDTOById(id));
+    public ResponseEntity<Contenedor> findById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(service.findById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
+    // Estado simple
     @GetMapping("/{id}/estado")
     public ResponseEntity<ContenedorEstado> getEstadoById(@PathVariable Integer id) {
         ContenedorEstado estado = service.findEstadoById(id);
         return ResponseEntity.ok(estado);
     }
 
-    // --- MODIFICADO: Usa service.updateEstado() ---
+    // Actualizar estado
     @PutMapping("/{id}/estado")
     public ResponseEntity<ContenedorDTO> updateEstado(
             @PathVariable Integer id,
             @RequestParam Integer estadoId,
             @RequestParam Integer ubicacionId) {
-        
+
         ContenedorDTO actualizado = service.updateEstado(id, estadoId, ubicacionId);
         return ResponseEntity.ok(actualizado);
     }
 
-    // --- MODIFICADO: Usa service.save() ---
+    // Crear contenedor
     @PostMapping
     public ResponseEntity<ContenedorDTO> save(@RequestBody Contenedor contenedor,
                                               @RequestParam Integer clienteId,
@@ -59,37 +63,37 @@ public class ContenedorController {
         return ResponseEntity.status(201).body(guardado);
     }
 
-    // --- MODIFICADO: Usa service.update() ---
+    // Actualizar contenedor (si está disponible)
     @PutMapping("/{id}")
-    public ResponseEntity<ContenedorDTO> update(@PathVariable Integer id, @RequestBody Contenedor contenedor) {
+    public ResponseEntity<ContenedorDTO> update(@PathVariable Integer id,
+                                                @RequestBody Contenedor contenedor) {
         return ResponseEntity.ok(service.update(id, contenedor));
     }
 
+    // Eliminar contenedor
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         service.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('CLIENTE')") 
+    // Paso 2 - Estado del transporte (para CLIENTE)
+    @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/{id}/estado-transporte")
-    public ResponseEntity<EstadoContenedorResponse> consultarEstadoTransporte(
-        @PathVariable Integer id) {
-    return ResponseEntity.ok(service.consultarEstadoTransporte(id));
+    public ResponseEntity<EstadoContenedorResponse> consultarEstadoTransporte(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.consultarEstadoTransporte(id));
     }
 
-
-    //Funcionalidad 5 - Listar contenedores no disponibles
-    @PreAuthorize("hasRole('OPERADOR')") 
+    // Funcionalidad 5 - Listar contenedores no disponibles
+    @PreAuthorize("hasRole('OPERADOR')")
     @GetMapping("/pendientes")
     public ResponseEntity<List<ContenedorPendienteDTO>> getPendientes(
-        @RequestParam(required = false) Integer estadoId,
-        @RequestParam(required = false) Integer clienteId,
-        @RequestParam(required = false) Integer ubicacionId
+            @RequestParam(required = false) Integer estadoId,
+            @RequestParam(required = false) Integer clienteId,
+            @RequestParam(required = false) Integer ubicacionId
     ) {
         return ResponseEntity.ok(
-            service.obtenerPendientes(estadoId, clienteId, ubicacionId)
+                service.obtenerPendientes(estadoId, clienteId, ubicacionId)
         );
     }
-
 }

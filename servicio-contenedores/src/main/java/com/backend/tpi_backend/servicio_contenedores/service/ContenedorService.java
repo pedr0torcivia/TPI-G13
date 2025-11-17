@@ -52,7 +52,7 @@ public class ContenedorService {
                 .collect(Collectors.toList());
     }
 
-    // Método interno que devuelve la Entidad (para uso del servicio)
+    // Método interno que devuelve la Entidad
     public Contenedor findById(Integer id) {
         return contenedorRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Contenedor no encontrado con ID: " + id)
@@ -165,7 +165,7 @@ public class ContenedorService {
                     SeguimientoContenedorResponse r = new SeguimientoContenedorResponse();
                     r.setEstado(s.getEstado().getNombre());
                     r.setUbicacionId(s.getUbicacionId());
-                    r.setFechaHora(s.getFecha()); // campo LocalDateTime de la entidad
+                    r.setFechaHora(s.getFecha());
                     return r;
                 }).toList()
         );
@@ -173,7 +173,7 @@ public class ContenedorService {
         return dto;
     }
 
-    // Funcionalidad 5 - Consultar todos los contenedores pendientes de entrega y su ubicación / estado con filtros.
+    // Funcionalidad 5 - Consultar contenedores pendientes
     public List<ContenedorPendienteDTO> obtenerPendientes(Integer estadoFiltro, Integer clienteId, Integer ubicacionId) {
 
         // 1. Obtener todos menos ENTREGADO
