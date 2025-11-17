@@ -1,0 +1,758 @@
+{
+  "info": {
+    "_postman_id": "tpi-collection-2025",
+    "name": "TPI - Pruebas de Endpoints con Roles",
+    "description": "Colección de pruebas para validar endpoints del API Gateway con roles (Cliente, Transportista, Operador)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔑 Autenticación",
+      "item": [
+        {
+          "name": "Login - Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.collectionVariables.set('token_cliente', data.access_token);",
+                  "  pm.test('✅ Token Cliente obtenido', function() {",
+                  "    pm.expect(data).to.have.property('access_token');",
+                  "  });",
+                  "} else {",
+                  "  pm.test('❌ Error en login Cliente', function() {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "tpi-client",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "tpi-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "cliente1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8181/realms/tpi-realm/protocol/openid-connect/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8181",
+              "path": [
+                "realms",
+                "tpi-realm",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login - Transportista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.collectionVariables.set('token_transportista', data.access_token);",
+                  "  pm.test('✅ Token Transportista obtenido', function() {",
+                  "    pm.expect(data).to.have.property('access_token');",
+                  "  });",
+                  "} else {",
+                  "  pm.test('❌ Error en login Transportista', function() {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "tpi-client",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "tpi-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "transportista1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8181/realms/tpi-realm/protocol/openid-connect/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8181",
+              "path": [
+                "realms",
+                "tpi-realm",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login - Operador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.collectionVariables.set('token_operador', data.access_token);",
+                  "  pm.test('✅ Token Operador obtenido', function() {",
+                  "    pm.expect(data).to.have.property('access_token');",
+                  "  });",
+                  "} else {",
+                  "  pm.test('❌ Error en login Operador', function() {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "tpi-client",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "tpi-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "operador1",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "password123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8181/realms/tpi-realm/protocol/openid-connect/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8181",
+              "path": [
+                "realms",
+                "tpi-realm",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Servicio Contenedores",
+      "item": [
+        {
+          "name": "✅ GET /api/clientes (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/contenedores (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/contenedores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "contenedores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔐 POST /api/solicitudes (Solo CLIENTE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('✅ CLIENTE puede crear solicitud', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test('❌ TRANSPORTISTA NO puede crear solicitud', function() {",
+                  "  pm.collectionVariables.get('token_transportista');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_cliente}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": 1,\n  \"descripcion\": \"Solicitud de transporte de contenedores\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/solicitudes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/solicitudes (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/solicitudes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "solicitudes"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚚 Servicio Transporte",
+      "item": [
+        {
+          "name": "✅ GET /api/camiones (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/camiones",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "camiones"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/rutas (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/rutas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "rutas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔐 GET /api/transportistas (Solo OPERADOR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operador}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/transportistas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "transportistas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "❌ GET /api/transportistas (CLIENTE - Debe fallar)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_cliente}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/transportistas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "transportistas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔐 GET /api/tramos (TRANSPORTISTA - Lectura)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_transportista}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tramos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tramos"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Servicio Tarifa",
+      "item": [
+        {
+          "name": "🔐 GET /api/tarifas (Solo OPERADOR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operador}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tarifas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tarifas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "❌ GET /api/tarifas (CLIENTE - Debe fallar)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_cliente}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tarifas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tarifas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔐 POST /api/tarifas (Solo OPERADOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operador}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valorKm\": 50.0,\n  \"valorLitroCombustible\": 280.0\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/tarifas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tarifas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/tarifas/valor-combustible (Autenticado)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_operador}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/tarifas/valor-combustible",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tarifas",
+                "valor-combustible"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Servicio Depósito",
+      "item": [
+        {
+          "name": "✅ GET /api/provincias (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/provincias",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "provincias"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/ciudades (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/ciudades",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "ciudades"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/depositos (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/depositos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "depositos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ GET /api/ubicaciones (Sin Auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/ubicaciones",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "ubicaciones"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔍 Servicio Discovery (Eureka)",
+      "item": [
+        {
+          "name": "✅ Eureka Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:18761/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "18761",
+              "path": [
+                ""
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ Servicios Registrados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:18761/eureka/apps",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "18761",
+              "path": [
+                "eureka",
+                "apps"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Keycloak",
+      "item": [
+        {
+          "name": "✅ Keycloak Admin Console",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8181/admin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8181",
+              "path": [
+                "admin"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token_cliente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_transportista",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_operador",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
