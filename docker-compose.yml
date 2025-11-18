@@ -1,5 +1,22 @@
 services:
   # ==========================
+  # BASE DE DATOS POSTGRESQL (NUEVO SERVICIO)
+  # ==========================
+  postgres-db:
+    image: postgres:16-alpine # Imagen estable y ligera de Postgres
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: tpi_shared_db 
+      POSTGRES_USER: user 
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432" # Opcional: para acceder a la DB desde el host (DBeaver, PGAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistencia segura para Postgres
+    networks:
+      - tpi-net
+
+  # ==========================
   # EUREKA SERVER
   # ==========================
   eureka:
@@ -8,7 +25,7 @@ services:
       dockerfile: Dockerfile
     container_name: eureka
     ports:
-      - "18761:8761"   # HOST:CONTAINER
+      - "18761:8761" 
     networks:
       - tpi-net
 
@@ -29,19 +46,7 @@ services:
     networks:
       - tpi-net
 
-  # ==========================
-  # OSRM (Opcional - requiere archivo argentina-251112.osrm)
-  # ==========================
-  # osrm:
-  #   image: osrm/osrm-backend
-  #   container_name: osrm
-  #   command: osrm-routed /data/argentina-251112.osrm
-  #   ports:
-  #     - "5001:5000"
-  #   volumes:
-  #     - ./osrm-data:/data
-  #   networks:
-  #     - tpi-net
+  # OSRM (Omitido por brevedad, se mantiene igual si lo descomentas)
 
   # ==========================
   # API GATEWAY
@@ -57,17 +62,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # Que apunte al EUREKA dentro de la red de Docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
-
-      # Que apunte a KEYCLOAK dentro de la red de Docker
-      
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
     networks:
       - tpi-net
 
   # ==========================
-  # SERVICIO CONTENEDORES
+  # SERVICIO CONTENEDORES (ACTUALIZADO)
   # ==========================
   servicio-contenedores:
     build:
@@ -76,19 +77,18 @@ services:
     container_name: servicio-contenedores
     depends_on:
       - eureka
+      - postgres-db # <-- NUEVA DEPENDENCIA
     ports:
       - "8081:8081"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
-      
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
-    volumes:
-      - ./h2:/h2
+      # ¡ELIMINADO: volumes: - ./h2:/h2 para evitar corrupción!
     networks:
       - tpi-net
 
   # ==========================
-  # SERVICIO TRANSPORTE
+  # SERVICIO TRANSPORTE (ACTUALIZADO)
   # ==========================
   servicio-transporte:
     build:
@@ -97,21 +97,20 @@ services:
     container_name: servicio-transporte
     depends_on:
       - eureka
+      - postgres-db # <-- NUEVA DEPENDENCIA
     ports:
       - "8082:8082"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
       # OSRM (opcional - comentar esta línea si no está disponible)
       # - OSRM_BASE_URL=http://osrm:5000
-      
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
-    volumes:
-      - ./h2:/h2
+      # ¡ELIMINADO: volumes: - ./h2:/h2 para evitar corrupción!
     networks:
       - tpi-net
 
   # ==========================
-  # SERVICIO TARIFA
+  # SERVICIO TARIFA (ACTUALIZADO)
   # ==========================
   servicio-tarifa:
     build:
@@ -120,19 +119,18 @@ services:
     container_name: servicio-tarifa
     depends_on:
       - eureka
+      - postgres-db # <-- NUEVA DEPENDENCIA
     ports:
       - "8084:8084"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
-      
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-realm/protocol/openid-connect/certs
-    volumes:
-      - ./h2:/h2
+      # ¡ELIMINADO: volumes: - ./h2:/h2 para evitar corrupción!
     networks:
       - tpi-net
 
   # ==========================
-  # SERVICIO DEPOSITO
+  # SERVICIO DEPOSITO (ACTUALIZADO)
   # ==========================
   servicio-deposito:
     build:
@@ -141,18 +139,19 @@ services:
     container_name: servicio-deposito
     depends_on:
       - eureka
+      - postgres-db # <-- NUEVA DEPENDENCIA
     ports:
       - "8085:8085"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
-    volumes:
-      - ./h2:/h2
+      # ¡ELIMINADO: volumes: - ./h2:/h2 para evitar corrupción!
     networks:
       - tpi-net
 
-# Volumen para datos de Keycloak
+# Volumen para datos de Keycloak y Postgres
 volumes:
   keycloak_data:
+  postgres_data: # <-- NUEVO VOLUMEN para Postgres
 
 # Red interna de Docker para que se vean por nombre
 networks:

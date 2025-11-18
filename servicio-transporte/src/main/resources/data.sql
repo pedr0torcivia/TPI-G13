@@ -1,53 +1,50 @@
+-- ===============================================
 -- TIPOS DE TRAMO
-MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (1, 'origen-deposito');
-MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (2, 'deposito-deposito');
-MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (3, 'deposito-destino');
-MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (4, 'origen-destino');
-MERGE INTO tramo_tipo (id, nombre) KEY(id) VALUES (5, 'principal');  -- para la ruta directa
-
-
--- ESTADOS DE TRAMO  ✅ SIN 'pendiente' y SIN IDs repetidos
-MERGE INTO tramo_estado (id, nombre) KEY(id) VALUES (1, 'estimado');
-MERGE INTO tramo_estado (id, nombre) KEY(id) VALUES (2, 'asignado');
-MERGE INTO tramo_estado (id, nombre) KEY(id) VALUES (3, 'iniciado');
-MERGE INTO tramo_estado (id, nombre) KEY(id) VALUES (4, 'finalizado');
-
+-- ===============================================
+INSERT INTO tramo_tipo (id, nombre) VALUES (1, 'origen-deposito')  ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_tipo (id, nombre) VALUES (2, 'deposito-deposito') ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_tipo (id, nombre) VALUES (3, 'deposito-destino')  ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_tipo (id, nombre) VALUES (4, 'origen-destino')    ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_tipo (id, nombre) VALUES (5, 'principal')         ON CONFLICT (id) DO NOTHING;
 
 -- ===============================================
--- TRANSPORTISTAS Y CAMIONES
+-- ESTADOS DE TRAMO
 -- ===============================================
+INSERT INTO tramo_estado (id, nombre) VALUES (1, 'estimado')   ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_estado (id, nombre) VALUES (2, 'asignado')   ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_estado (id, nombre) VALUES (3, 'iniciado')   ON CONFLICT (id) DO NOTHING;
+INSERT INTO tramo_estado (id, nombre) VALUES (4, 'finalizado') ON CONFLICT (id) DO NOTHING;
 
-MERGE INTO transportistas (id, id_keycloak, nombre, telefono, direccion) KEY(id)
-VALUES (1, 'keycloak-1', 'Transporte Veloz SRL', '3512223344', 'Av. Logística 123, Córdoba');
+-- ===============================================
+-- TRANSPORTISTAS
+-- ===============================================
+INSERT INTO transportistas (id, id_keycloak, nombre, telefono, direccion)
+VALUES (1, 'keycloak-1', 'Transporte Veloz SRL', '3512223344', 'Av. Logística 123, Córdoba')
+ON CONFLICT (id) DO NOTHING;
 
-MERGE INTO transportistas (id, id_keycloak, nombre, telefono, direccion) KEY(id)
-VALUES (2, 'keycloak-2', 'Rutas del Sur SA', '3515556677', 'Ruta 9 km 20, Rosario');
+INSERT INTO transportistas (id, id_keycloak, nombre, telefono, direccion)
+VALUES (2, 'keycloak-2', 'Rutas del Sur SA', '3515556677', 'Ruta 9 km 20, Rosario')
+ON CONFLICT (id) DO NOTHING;
 
--- CAMIONES
-MERGE INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km) KEY(dominio)
-VALUES ('AAA111', 1, 8000, 25, TRUE, 180.0, 0.32);
+-- ===============================================
+-- CAMIONES (PK es String 'dominio', no tiene secuencia)
+-- ===============================================
+INSERT INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km)
+VALUES ('AAA111', 1, 8000, 25, TRUE, 180.0, 0.32)
+ON CONFLICT (dominio) DO NOTHING;
 
-MERGE INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km) KEY(dominio)
-VALUES ('BBB222', 1, 12000, 35, TRUE, 220.0, 0.40);
+INSERT INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km)
+VALUES ('BBB222', 1, 12000, 35, TRUE, 220.0, 0.40)
+ON CONFLICT (dominio) DO NOTHING;
 
-MERGE INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km) KEY(dominio)
-VALUES ('CCC333', 2, 6000, 20, TRUE, 150.0, 0.30);
+INSERT INTO camiones (dominio, id_transportista, capacidad_peso_kg, capacidad_volumen_m3, disponibilidad, costo_km, consumo_combustible_km)
+VALUES ('CCC333', 2, 6000, 20, TRUE, 150.0, 0.30)
+ON CONFLICT (dominio) DO NOTHING;
 
-/*
--- ❌ SACAMOS ESTO PARA QUE NO ROMPA EL IDENTITY
-
-MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
-VALUES (1, 100, 2, 1);
-
-MERGE INTO rutas (id, solicitud_id, cantidad_tramos, cantidad_depositos) KEY(id)
-VALUES (2, 101, 1, 0);
-
--- TRAMOS...
-MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id)
-KEY(id)
-VALUES (1, 1, 10, 20, 1, 1);
-
-MERGE INTO tramos (id, ruta_id, origen_id, destino_id, tipo_id, estado_id)
-KEY(id)
-VALUES (2, 1, 20, 30, 2, 1);
-*/
+-- ===============================================
+-- REINICIO DE SECUENCIAS
+-- ===============================================
+SELECT setval(pg_get_serial_sequence('tramo_tipo', 'id'), coalesce(max(id), 0) + 1, false) FROM tramo_tipo;
+SELECT setval(pg_get_serial_sequence('tramo_estado', 'id'), coalesce(max(id), 0) + 1, false) FROM tramo_estado;
+SELECT setval(pg_get_serial_sequence('transportistas', 'id'), coalesce(max(id), 0) + 1, false) FROM transportistas;
+-- Nota: Rutas y Tramos no tienen inserts activos, pero si descomentas el código viejo, agrega aquí sus reinicios de secuencia.
