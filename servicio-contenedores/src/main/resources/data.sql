@@ -2,15 +2,15 @@
 -- ESTADOS (Catálogos)
 -- ===============================================
 INSERT INTO contenedor_estado (id, nombre) VALUES (1, 'disponible') ON CONFLICT (id) DO NOTHING;
-INSERT INTO contenedor_estado (id, nombre) VALUES (2, 'asignado')  ON CONFLICT (id) DO NOTHING;
+INSERT INTO contenedor_estado (id, nombre) VALUES (2, 'asignado')   ON CONFLICT (id) DO NOTHING;
 INSERT INTO contenedor_estado (id, nombre) VALUES (3, 'en_transito')ON CONFLICT (id) DO NOTHING;
-INSERT INTO contenedor_estado (id, nombre) VALUES (4, 'entregado') ON CONFLICT (id) DO NOTHING;
+INSERT INTO contenedor_estado (id, nombre) VALUES (4, 'entregado')  ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO solicitud_estado (id, nombre) VALUES (1, 'borrador') ON CONFLICT (id) DO NOTHING;
-INSERT INTO solicitud_estado (id, nombre) VALUES (2, 'programada') ON CONFLICT (id) DO NOTHING;
+INSERT INTO solicitud_estado (id, nombre) VALUES (1, 'borrador')    ON CONFLICT (id) DO NOTHING;
+INSERT INTO solicitud_estado (id, nombre) VALUES (2, 'programada')  ON CONFLICT (id) DO NOTHING;
 INSERT INTO solicitud_estado (id, nombre) VALUES (3, 'en_transito') ON CONFLICT (id) DO NOTHING;
-INSERT INTO solicitud_estado (id, nombre) VALUES (4, 'entregada') ON CONFLICT (id) DO NOTHING;
-INSERT INTO solicitud_estado (id, nombre) VALUES (5, 'cancelada') ON CONFLICT (id) DO NOTHING;
+INSERT INTO solicitud_estado (id, nombre) VALUES (4, 'entregada')   ON CONFLICT (id) DO NOTHING;
+INSERT INTO solicitud_estado (id, nombre) VALUES (5, 'cancelada')   ON CONFLICT (id) DO NOTHING;
 
 -- ===============================================
 -- CLIENTES
